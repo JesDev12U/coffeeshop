@@ -116,7 +116,6 @@ public class Productos {
             }
             
             case 4 -> {
-                System.out.println("--------- PRODUCTOS DADOS DE BAJA---------\n");
                 visualizarBajas();
             }
             
@@ -299,9 +298,22 @@ public class Productos {
                 String query = "SELECT IdProducto, NombreP, Descripcion, Precio FROM productos WHERE Estado = false";
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
+                System.out.println("--------- PRODUCTOS DADOS DE BAJA---------");
+                System.out.println("ID\tNombre\t\t\t\tDescripcion\t\t\t\t\t\tPrecio");
                 while(rs.next()){
-                    System.out.println(rs.getInt(1) + "  " + rs.getString(2) + "  \t  " + 
-                            rs.getString(3) + "  \t  " + rs.getFloat(4));
+                    int idProd = rs.getInt(1);
+                    String nomProd = rs.getString(2);
+                    String descProd = rs.getString(3);
+                    float precioProd = rs.getFloat(4);
+                    
+                    //Ajustar la longitud máxima de la descripción
+                    int maxLength = 50;
+                    if(descProd.length() > maxLength){
+                        descProd = descProd.substring(0, maxLength);
+                    }
+                    
+                    System.out.println(String.format("%d\t%-25s\t%-55s\t%.2f", idProd, 
+                            nomProd, descProd, precioProd));
                 }
                 //Confirmamos los cambios como una única transacción en la BD
                 conexion.commit();

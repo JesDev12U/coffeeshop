@@ -251,9 +251,21 @@ public class Clientes extends Users {
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
                 System.out.println("--------- PRODUCTOS ---------");
+                System.out.println("ID\tNombre\t\t\t\tDescripcion\t\t\t\t\t\tPrecio");
                 while(rs.next()){
-                    System.out.println(rs.getInt(1) + "  " + rs.getString(2) + "  \t  " + 
-                            rs.getString(3) + "  \t  " + rs.getFloat(4));
+                    int idProd = rs.getInt(1);
+                    String nomProd = rs.getString(2);
+                    String descripcion = rs.getString(3);
+                    float precio = rs.getFloat(4);
+                    
+                    //Ajustar la longitud máxima de la descripción
+                    int maxLength = 50;
+                    if(descripcion.length() > maxLength){
+                        descripcion = descripcion.substring(0, maxLength);
+                    }
+                    
+                    System.out.println(String.format("%d\t%-25s\t%-55s\t%.2f", idProd, 
+                            nomProd, descripcion, precio));
                 }
                 //Confirmamos los cambios como una única transacción en la BD
                 conexion.commit();
