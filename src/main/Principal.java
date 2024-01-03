@@ -54,16 +54,18 @@ public class Principal {
                                 while(empleados.isSesion()){
                                     System.out.println("********* SESION DE EMPLEADOS *********");
                                     System.out.println("Bienvenido " + empleados.darBienvenidaUser() + "\n");
-                                    empleados.menuEmpleados();
+                                    empleados.menuUser();
                                 }
                             } else{
                                 //Para los clientes
                                 Clientes clientes = new Clientes();
                                 clientes.setCorreo(correo); //Asignamos el correo para después dar la bienvenida
-                                boolean sesion = true; //Sesion activa
-                                while(sesion){
+                                //Activamos la sesion
+                                clientes.setSesion(true);
+                                while(clientes.isSesion()){
                                     System.out.println("********* SESION DE CLIENTES *********");
                                     System.out.println("Bienvenido " + clientes.darBienvenidaUser());
+                                    clientes.menuUser();
                                 }
                             }
                         } else{

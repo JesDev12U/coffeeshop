@@ -17,6 +17,44 @@ import conexiondb.MySQLConnection;
 
 public class Clientes extends Users {
     
+    @Override
+    public void menuUser() {
+        System.out.println("===== MENU DE CLIENTES =====");
+        System.out.print("\n1. Carrito");
+        System.out.print("\n2. Ver productos");
+        System.out.print("\n3. Modificar datos");
+        System.out.print("\n4. Dar de baja la cuenta");
+        System.out.print("\n5. Cerrar sesion");
+        System.out.print("\n\nTeclee una opcion: ");
+        int opcion = scanner.nextInt();
+        switch(opcion){
+            case 1 -> {
+                System.out.println("In dev...");
+            }
+            
+            case 2 -> {
+                verProductos();
+            }
+            
+            case 3 -> {
+                setTipoUser(false); //Clientes
+                modificarDatosMenu();
+            }
+            
+            case 4 -> {
+                darBajaMenu();
+            }
+            
+            case 5 -> {
+                setSesion(false); //Cerramos la sesion
+            }
+            
+            default -> {
+                System.out.println("Opcion invalida...");
+            }
+        }
+    }
+    
     //Este método servirá para consultar el ID del cliente mediante el correo electrónico
     @Override
     protected void consultarID(){
@@ -26,7 +64,6 @@ public class Clientes extends Users {
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT IdCliente FROM clientes WHERE CorreoE = '" + correo + "'";
-                System.out.println(query);
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
                 while(rs.next()){
@@ -75,7 +112,7 @@ public class Clientes extends Users {
     }
     
     @Override
-    protected void modificarUser(){
+    protected void modificarUser(int opcionMod){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
@@ -83,24 +120,55 @@ public class Clientes extends Users {
                 //Si falla una transacción, no se realiza niguna otra
                 conexion.setAutoCommit(false);
                 consultarID();
-                String query = "UPDATE clientes SET NombreC = ?, "
-                        + "ApellidoPaternoC = ?, "
-                        + "ApellidoMaternoC = ?, "
-                        + "CorreoE = ?, "
-                        + "PasswordC = ? "
-                        + "WHERE IdCliente = ?";
-                PreparedStatement st = conexion.prepareStatement(query);
-                st.setString(1, nombre);
-                st.setString(2, apellidoPaterno);
-                st.setString(3, apellidoMaterno);
-                st.setString(4, correo);
-                st.setString(5, password);
-                st.setInt(6, id);
-                st.executeUpdate();
+                switch(opcionMod){
+                    case 1 -> {
+                        String query = "UPDATE clientes SET NombreC = ? WHERE IdCliente = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, nombre);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el nombre con exito");
+                    }
+                    
+                    case 2 -> {
+                        String query = "UPDATE clientes SET ApellidoPaternoC = ? WHERE IdCliente = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, apellidoPaterno);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el apellido paterno con exito");
+                    }
+                    
+                    case 3 -> {
+                        String query = "UPDATE clientes SET ApellidoMaternoC = ? WHERE IdCliente = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, apellidoMaterno);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el apellido materno con exito");
+                    }
+                    
+                    case 4 -> {
+                        String query = "UPDATE clientes SET CorreoE = ? WHERE IdCliente = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, correo);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el correo con exito");
+                    }
+                    
+                    case 5 -> {
+                        String query = "UPDATE clientes SET PasswordC = ? WHERE IdCliente = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, password);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el password con exito");
+                    }
+                }
                 //Confirmamos los cambios como una única transacción en la BD
                 conexion.commit();
                 conexion.setAutoCommit(true);
-                System.out.println("Actualización de los datos del cliente completado con exito");
             } else {
                 System.out.println("Error con la conexion de la BD");
             }
@@ -172,7 +240,29 @@ public class Clientes extends Users {
     }
     
     @Override
+    //Se visualizarán únicamente los productos activos Estado = true
     protected void verProductos(){
-        
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT IdProducto, NombreP, Descripcion, Precio FROM productos WHERE Estado = true";
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                System.out.println("--------- PRODUCTOS ---------");
+                while(rs.next()){
+                    System.out.println(rs.getInt(1) + "  " + rs.getString(2) + "  \t  " + 
+                            rs.getString(3) + "  \t  " + rs.getFloat(4));
+                }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else {
+                System.out.println("No se pudo conectar a la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("Error al mostrar los productos activos: " + e.toString());
+        }
     }
 }

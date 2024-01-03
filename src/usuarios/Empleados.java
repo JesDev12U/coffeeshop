@@ -13,25 +13,21 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.util.Scanner;
 import conexiondb.MySQLConnection;
-//Clase para el inventario
+//Clases para el inventario
 import inventario.*;
 
 public class Empleados extends Users{
-    Scanner scanner;
-    private boolean sesion;
     
-    public Empleados() {
-        scanner = new Scanner(System.in);
-    }
-    
-    public void menuEmpleados() {
+    @Override
+    public void menuUser() {
         System.out.println("===== MENU DE EMPLEADOS =====");
         System.out.print("\n1. Inventario");
         System.out.print("\n2. Ver productos");
         System.out.print("\n3. Pedidos");
-        System.out.print("\n4. Cerrar sesion");
+        System.out.print("\n4. Modificar datos");
+        System.out.print("\n5. Dar de baja la cuenta");
+        System.out.print("\n6. Cerrar sesion");
         System.out.print("\n\nSeleccione una opcion: ");
         int opcion = scanner.nextInt();
         switch(opcion) {
@@ -52,6 +48,15 @@ public class Empleados extends Users{
             }
             
             case 4 -> {
+                setTipoUser(true); //Empleados
+                modificarDatosMenu();
+            }
+            
+            case 5 -> {
+                darBajaMenu();
+            }
+            
+            case 6 -> {
                 setSesion(false); //Cerramos la sesion
             }
             
@@ -117,27 +122,59 @@ public class Empleados extends Users{
     }
     
     @Override
-    protected void modificarUser(){
+    protected void modificarUser(int opcionMod){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 consultarID();
-                String query = "UPDATE empleados SET NombreE = ?, "
-                        + "ApellidoPaternoE = ?, "
-                        + "ApellidoMaternoE = ?, "
-                        + "CorreoE = ?,"
-                        + "PasswordE = ? "
-                        + "WHERE IdEmpleado = ?";
-                PreparedStatement st = conexion.prepareStatement(query);
-                st.setString(1, nombre);
-                st.setString(2, apellidoPaterno);
-                st.setString(3, apellidoMaterno);
-                st.setString(4, correo);
-                st.setString(5, password);
-                st.setInt(6, id);
-                System.out.println("Se han modificado los datos del empleado con exito");
+                switch(opcionMod){
+                    case 1 -> {
+                        String query = "UPDATE empleados SET NombreE = ? WHERE IdEmpleado = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, nombre);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el nombre con exito");
+                    }
+                    
+                    case 2 -> {
+                        String query = "UPDATE empleados SET ApellidoPaternoE = ? WHERE IdEmpleado = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, apellidoPaterno);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el apellido paterno con exito");
+                    }
+                    
+                    case 3 -> {
+                        String query = "UPDATE empleados SET ApellidoMaternoE = ? WHERE IdEmpleado = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, apellidoMaterno);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el apellido materno con exito");
+                    }
+                    
+                    case 4 -> {
+                        String query = "UPDATE empleados SET CorreoE = ? WHERE IdEmpleado = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, correo);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el correo con exito");
+                    }
+                    
+                    case 5 -> {
+                        String query = "UPDATE empleados SET PasswordE = ? WHERE IdEmpleado = ?";
+                        PreparedStatement st = conexion.prepareStatement(query);
+                        st.setString(1, password);
+                        st.setInt(2, id);
+                        st.executeUpdate();
+                        System.out.println("Se ha modificado el password con exito");
+                    }
+                }
                 //Confirmamos los cambios como una única transacción en la BD
                 conexion.commit();
                 conexion.setAutoCommit(true);
@@ -217,6 +254,7 @@ public class Empleados extends Users{
                 String query = "SELECT * FROM productos";
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
+                System.out.println("--------- PRODUCTOS ---------");
                 while(rs.next()){
                     System.out.println(rs.getInt(1) + "  " + rs.getString(2) + "  \t  " + 
                             rs.getString(3) + "  \t  " + rs.getFloat(4) + "  \t  " + rs.getBoolean(5));
@@ -230,16 +268,6 @@ public class Empleados extends Users{
         } catch(SQLException e){
             System.out.println("Error para mostrar los productos: " + e.toString());
         }
-    }
-    
-    //Getters and Setters
-
-    public boolean isSesion() {
-        return sesion;
-    }
-
-    public void setSesion(boolean sesion) {
-        this.sesion = sesion;
     }
     
 }

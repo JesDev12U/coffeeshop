@@ -98,6 +98,10 @@ public class Productos {
                             precio = scanner.nextFloat();
                             modProd(opcionMod);
                         }
+                        
+                        default -> {
+                            System.out.println("Opcion invalida...");
+                        }
                     }
                 }
             }
