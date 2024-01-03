@@ -46,7 +46,7 @@ public class Clientes extends Users {
     
     //Implementación de los métodos abstractos
     @Override
-    protected void insertarUser(){
+    public void insertarUser(){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();

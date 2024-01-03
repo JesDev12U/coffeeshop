@@ -70,6 +70,53 @@ public class Principal {
                             System.out.println("Usuario y/o contraseña incorrectos");
                         }
                     }
+                    
+                    case 2 -> {
+                        System.out.print("\n\n***** REGISTRO *****");
+                        System.out.print("\n\nTeclee su correo: ");
+                        scanner.nextLine();
+                        String correo = scanner.nextLine();
+                        Registro registro = new Registro(correo);
+                        if(registro.validarExistencia()){
+                            System.out.println("Error! Ese correo ya esta asociado a una cuenta...");
+                        } else{
+                            System.out.print("\nTeclee su password: ");
+                            String password = scanner.nextLine();
+                            System.out.print("\nTeclee su nombre: ");
+                            String nombre = scanner.nextLine();
+                            System.out.println("\nTeclee su apellido paterno: ");
+                            String apellidoPaterno = scanner.nextLine();
+                            System.out.println("\nTeclee su apellido materno: ");
+                            String apellidoMaterno = scanner.nextLine();
+                            if(registro.verificarCorreoE()){
+                                //Si el correo es de un empleado
+                                Empleados empleado = new Empleados();
+                                empleado.setNombre(nombre);
+                                empleado.setApellidoPaterno(apellidoPaterno);
+                                empleado.setApellidoMaterno(apellidoMaterno);
+                                empleado.setCorreo(correo);
+                                empleado.setPassword(password);
+                                empleado.insertarUser();
+                            } else{
+                                //Si el correo es de un cliente
+                                Clientes cliente = new Clientes();
+                                cliente.setNombre(nombre);
+                                cliente.setApellidoPaterno(apellidoPaterno);
+                                cliente.setApellidoMaterno(apellidoMaterno);
+                                cliente.setCorreo(correo);
+                                cliente.setPassword(password);
+                                cliente.insertarUser();
+                            }
+                        }
+                    }
+                    
+                    case 3 -> {
+                        seguir = false;
+                    }
+                    
+                    default -> {
+                        System.out.println("Opcion invalida...");
+                    }
                 }
             } while(seguir);
         } else{

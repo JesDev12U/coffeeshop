@@ -89,7 +89,7 @@ public class Empleados extends Users{
     }
     
     @Override
-    protected void insertarUser(){
+    public void insertarUser(){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
