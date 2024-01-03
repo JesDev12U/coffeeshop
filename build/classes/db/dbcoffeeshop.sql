@@ -18,7 +18,6 @@ create table empleados(
 	ApellidoMaternoE varchar(30) not null,
 	CorreoE varchar(50) not null,
 	PasswordE varchar(16) not null,
-	Cargo varchar(10) not null,
 	Estado boolean not null
 );
 

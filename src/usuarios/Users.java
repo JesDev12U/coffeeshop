@@ -11,6 +11,7 @@ package usuarios;
 
 public abstract class Users {
     //Datos generales para clientes y empleados
+    protected int id;
     protected String nombre;
     protected String apellidoPaterno;
     protected String apellidoMaterno;
@@ -18,6 +19,7 @@ public abstract class Users {
     protected String password;
     
     //Metodos abstractos
+    protected abstract void consultarID(); //Consulta el ID del usuario mediante su correo
     protected abstract void insertarUser(); //Inserta el usuario a la BD
     protected abstract void modificarUser(); //Modifica el usuario en la BD
     protected abstract void darBajaUser(); //Cambia el estado a 0 en la BD

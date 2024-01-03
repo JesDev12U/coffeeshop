@@ -18,6 +18,7 @@ import acceso.*;
 import usuarios.*;
 
 public class Principal {
+    
     public static void main(String[] args) {
         if(MySQLConnection.conectarBD()){
             boolean seguir = true;
@@ -25,7 +26,7 @@ public class Principal {
                 Scanner scanner = new Scanner(System.in);
                 System.out.println("======== COFFEE SHOP ========");
                 System.out.println("\nQue desea hacer?");
-                System.out.print("\n\n1. Login");
+                System.out.print("\n1. Login");
                 System.out.print("\n2. Registro");
                 System.out.print("\n3. Salir");
                 System.out.println("\n\nIngrese su opcion: ");
@@ -41,9 +42,32 @@ public class Principal {
                         Login login = new Login(correo, password);
                         //Verificamos credenciales
                         if(login.validarExistencia()){
-                            Clientes clientes = new Clientes();
-                            clientes.setCorreo(correo); //Asignamos el correo para después dar la bienvenida
-                            System.out.println("Bienvenido " + clientes.darBienvenidaUser());
+                            //Una vez verificadas las credenciales, asignamos el menu correspondiente
+                            //Es decir, determinamos el tipo de usuario
+                            if(login.verificarCorreoE()){
+                                //Para los empleados
+                                Empleados empleados = new Empleados();
+                                empleados.setCorreo(correo); //Asignamos el correo para después dar la bienvenida
+                                //Activamos la sesion
+                                empleados.setSesion(true);
+                                
+                                while(empleados.isSesion()){
+                                    System.out.println("********* SESION DE EMPLEADOS *********");
+                                    System.out.println("Bienvenido " + empleados.darBienvenidaUser() + "\n");
+                                    empleados.menuEmpleados();
+                                }
+                            } else{
+                                //Para los clientes
+                                Clientes clientes = new Clientes();
+                                clientes.setCorreo(correo); //Asignamos el correo para después dar la bienvenida
+                                boolean sesion = true; //Sesion activa
+                                while(sesion){
+                                    System.out.println("********* SESION DE CLIENTES *********");
+                                    System.out.println("Bienvenido " + clientes.darBienvenidaUser());
+                                }
+                            }
+                        } else{
+                            System.out.println("Usuario y/o contraseña incorrectos");
                         }
                     }
                 }

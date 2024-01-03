@@ -16,12 +16,10 @@ import java.sql.PreparedStatement;
 import conexiondb.MySQLConnection;
 
 public class Clientes extends Users {
-    private int id;
-    
-    //Métodos para la clase Clientes
     
     //Este método servirá para consultar el ID del cliente mediante el correo electrónico
-    private void consultarID(){
+    @Override
+    protected void consultarID(){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
@@ -41,6 +39,7 @@ public class Clientes extends Users {
                 conexion.setAutoCommit(true);
             }
         } catch(SQLException e){
+            System.out.println("Error al consultar el ID: " + e.toString());
             id = -1;
         }
     }
