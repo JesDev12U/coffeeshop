@@ -35,7 +35,7 @@ public class Empleados extends Users{
                 Productos productos = new Productos();
                 productos.setSesion(true); //Activamos la sesion
                 while(productos.isSesion()){
-                    productos.menuInventario();
+                    productos.menu();
                 }
             }
             

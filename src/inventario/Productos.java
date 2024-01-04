@@ -18,20 +18,20 @@ import java.sql.ResultSet;
 import conexiondb.MySQLConnection;
 //Clase para la entrada y salida de datos
 import java.util.Scanner;
+//Clase para la herencia
+import compras.Compras;
 
-public class Productos {
-    private int id;
+public class Productos extends Compras {
     private String nombre;
     private String descripcion;
-    private float precio;
-    private boolean sesion;
     private final Scanner scanner;
     
     public Productos(){
         scanner = new Scanner(System.in);
     }
 
-    public void menuInventario(){
+    @Override
+    public void menu(){
         System.out.println("===== MENU DE INVENTARIO =====");
         System.out.print("\n1. Agregar productos");
         System.out.print("\n2. Modificar productos");
@@ -62,7 +62,7 @@ public class Productos {
             case 2 -> {
                 System.out.println("--------- MODIFICAR PRODUCTOS ---------");
                 System.out.print("\nTeclee el ID del producto a modificar: ");
-                id = scanner.nextInt();
+                idProducto = scanner.nextInt();
                 //Buscamos por ID
                 if(!verificarExistenciaProd(false)){
                     System.out.println("No existe algun producto con ese ID");
@@ -71,7 +71,7 @@ public class Productos {
                     System.out.print("\n1. Nombre");
                     System.out.print("\n2. Descripcion");
                     System.out.print("\n3. Precio");
-                    System.out.println("\n\nTeclee una opcion: ");
+                    System.out.print("\n\nTeclee una opcion: ");
                     int opcionMod = scanner.nextInt();
                     switch(opcionMod){
                         case 1 -> {
@@ -109,7 +109,7 @@ public class Productos {
             case 3 -> {
                 System.out.println("--------- ELIMINAR PRODUCTOS ---------");
                 System.out.print("\n\nTeclee el ID del producto a eliminar: ");
-                id = scanner.nextInt();
+                idProducto = scanner.nextInt();
                 //Verificamos por ID
                 if(!verificarExistenciaProd(false)) System.out.println("El ID tecleado no existe"); 
                 else delProd();
@@ -122,7 +122,7 @@ public class Productos {
             case 5 -> {
                 System.out.println("--------- DAR DE ALTA PRODUCTOS ---------");
                 System.out.print("\n\nTeclee el ID del producto a dar de alta: ");
-                id = scanner.nextInt();
+                idProducto = scanner.nextInt();
                 //Si verificarBajProd es true, quiere decir que el producto ya esta dado de alta
                 if(!verificarExistenciaProd(false) || verificarBajaProd()){
                     System.out.println("ID invalido...");
@@ -141,7 +141,8 @@ public class Productos {
         }
     }
     
-    private void addProd(){
+    @Override
+    protected void addProd(){
         //Se añade un producto a la base de datos
         try{
             if(MySQLConnection.conectarBD()){
@@ -167,7 +168,8 @@ public class Productos {
         }
     }
     
-    private void modProd(int opcionMod){
+    @Override
+    protected void modProd(int opcionMod){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
@@ -178,7 +180,7 @@ public class Productos {
                         String query = "UPDATE productos SET NombreP = ? WHERE IdProducto = ?";
                         PreparedStatement st = conexion.prepareStatement(query);
                         st.setString(1, nombre);
-                        st.setInt(2, id);
+                        st.setInt(2, idProducto);
                         st.executeUpdate();
                         System.out.println("Se ha modificado el nombre del producto satisfactoriamente");
                     }
@@ -187,7 +189,7 @@ public class Productos {
                         String query = "UPDATE productos SET Descripcion = ? WHERE IdProducto = ?";
                         PreparedStatement st = conexion.prepareStatement(query);
                         st.setString(1, descripcion);
-                        st.setInt(2, id);
+                        st.setInt(2, idProducto);
                         st.executeUpdate();
                         System.out.println("Se ha modificado la descripcion del producto satisfactoriamente");
                     }
@@ -196,7 +198,7 @@ public class Productos {
                         String query = "UPDATE productos SET Precio = ? WHERE IdProducto = ?";
                         PreparedStatement st = conexion.prepareStatement(query);
                         st.setFloat(1, precio);
-                        st.setInt(2, id);
+                        st.setInt(2, idProducto);
                         st.executeUpdate();
                         System.out.println("Se ha modificado el precio del producto satisfactoriamente");
                     }
@@ -214,13 +216,14 @@ public class Productos {
     
     //En este metodo solo cambiamos el estado del producto a false
     //No se ocupa el DELETE
-    private void delProd(){
+    @Override
+    protected void delProd(){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
-                String query = "UPDATE productos SET Estado = false WHERE IdProducto = " + id;
+                String query = "UPDATE productos SET Estado = false WHERE IdProducto = " + idProducto;
                 Statement st = conexion.createStatement();
                 st.executeUpdate(query);
                 System.out.println("Producto dado de baja de forma exitosa");
@@ -239,6 +242,7 @@ public class Productos {
     //Y para verificar la existencia como tal
     //Si bln es true, quiere decir que buscara por nombre,
     //en caso contrario, buscara por ID
+    @Override
     public boolean verificarExistenciaProd(boolean bln){
         try{
             if(MySQLConnection.conectarBD()){
@@ -246,7 +250,7 @@ public class Productos {
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = bln ? "SELECT * FROM productos WHERE NombreP = '" + nombre + "'" : 
-                        "SELECT * FROM productos WHERE IdProducto = " + id;
+                        "SELECT * FROM productos WHERE IdProducto = " + idProducto;
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
                 //Confirmamos los cambios como una única transacción en la BD
@@ -270,7 +274,7 @@ public class Productos {
                 Connection conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
-                String query = "SELECT Estado FROM productos WHERE IdProducto = " + id;
+                String query = "SELECT Estado FROM productos WHERE IdProducto = " + idProducto;
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
                 while(rs.next()){
@@ -333,7 +337,7 @@ public class Productos {
                 Connection conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
-                String query = "UPDATE productos SET Estado = true WHERE IdProducto = " + id;
+                String query = "UPDATE productos SET Estado = true WHERE IdProducto = " + idProducto;
                 Statement st = conexion.createStatement();
                 st.executeUpdate(query);
                 System.out.println("Se ha dado de alta el producto con exito");
@@ -346,15 +350,5 @@ public class Productos {
         } catch(SQLException e){
             System.out.println("No se pudo dar de alta el producto: " + e.toString());
         }
-    }
-    
-    //Setters y Getters
-
-    public boolean isSesion() {
-        return sesion;
-    }
-
-    public void setSesion(boolean sesion) {
-        this.sesion = sesion;
     }
 }

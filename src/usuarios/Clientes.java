@@ -14,6 +14,8 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import conexiondb.MySQLConnection;
+//Clase para el carrito
+import compras.Carrito;
 
 public class Clientes extends Users {
     
@@ -29,7 +31,12 @@ public class Clientes extends Users {
         int opcion = scanner.nextInt();
         switch(opcion){
             case 1 -> {
-                System.out.println("In dev...");
+                consultarID();
+                Carrito carrito = new Carrito(id);
+                carrito.setSesion(true); //Activamos la sesion
+                while(carrito.isSesion()){
+                    carrito.menu();
+                }
             }
             
             case 2 -> {
