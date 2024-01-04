@@ -248,6 +248,37 @@ public class Carrito extends Compras {
         total = cantidad * precio;
     }
     
+    public float calcularTotalCarrito(){
+        float totalPagar = 0;
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                //Calculamos el total a pagar
+                String queryTotal = """
+                                    SELECT SUM(carrito.Total) AS SumaTotal
+                                    FROM carrito
+                                    INNER JOIN productos ON carrito.IdProducto = productos.IdProducto
+                                    WHERE carrito.IdCliente = """ + idCliente;
+                Statement stTotal = conexion.createStatement();
+                ResultSet rsTotal = stTotal.executeQuery(queryTotal);
+                
+                while(rsTotal.next()) {
+                    totalPagar = rsTotal.getFloat(1);
+                }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("Error para establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo consultar el total del carrito: " + e.toString());
+        }
+        return totalPagar;
+    }
+    
     private void buscarPrecioProd(){
         try{
             if(MySQLConnection.conectarBD()){
@@ -298,24 +329,12 @@ public class Carrito extends Compras {
                     if(detallesProd.length() > maxLength){
                         detallesProd = detallesProd.substring(0, maxLength);
                     }
-                    
                     //Imprimir los datos con alineación y columnas más anchas para nombre y detalles
                     System.out.println(String.format("%d\t%-25s\t%-55s\t%.2f\t\t%d\t\t%.2f", idProd, 
                             nomProd, detallesProd, precioProd, cantidadProd, totalProd));
                 }
-                //Calculamos el total a pagar
-                String queryTotal = """
-                                    SELECT SUM(carrito.Total) AS SumaTotal
-                                    FROM carrito
-                                    INNER JOIN productos ON carrito.IdProducto = productos.IdProducto
-                                    WHERE carrito.IdCliente = """ + idCliente;
-                Statement stTotal = conexion.createStatement();
-                ResultSet rsTotal = stTotal.executeQuery(queryTotal);
-                float totalPagar = 0;
-                while(rsTotal.next()) {
-                    totalPagar = rsTotal.getFloat(1);
-                }
-                System.out.println("Total a pagar: $" + String.format("%.2f", totalPagar));
+                
+                System.out.println("Total a pagar: $" + String.format("%.2f", calcularTotalCarrito()));
                 //Confirmamos los cambios como una única transacción en la BD
                 conexion.commit();
                 conexion.setAutoCommit(true);
@@ -325,5 +344,28 @@ public class Carrito extends Compras {
         } catch(SQLException e){
             System.out.println("Error para mostrar el carrito: " + e.toString());
         }
+    }
+    
+    //Se hace la verificacion si el carrito esta vacio o no
+    public boolean isEmpty(){
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT * FROM carrito WHERE IdCliente = " + idCliente;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+                return !rs.next(); //Si el carrito tiene registros, decimos que no esta vacio 
+            } else{
+                System.out.println("No se pudo realizar la conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("Error para consultar el carrito: " + e.toString());
+        }
+        return true; //Para evitar errores
     }
 }

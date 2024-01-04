@@ -66,6 +66,11 @@ public class Empleados extends Users{
         }
     }
     
+    @Override
+    public void menuPedidos(){
+        
+    }
+    
     //Metodos abstractos
     @Override
     protected void consultarID(){

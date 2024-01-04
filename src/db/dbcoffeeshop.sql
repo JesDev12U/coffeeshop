@@ -25,6 +25,7 @@ create table pedidos(
 	CodigoPedido int primary key auto_increment,
 	Fecha date not null,
 	Hora time not null,
+    Total float not null,
 	Pendiente boolean not null,
 	Cancelado boolean not null,
 	IdCliente int not null,

@@ -16,6 +16,8 @@ import java.sql.PreparedStatement;
 import conexiondb.MySQLConnection;
 //Clase para el carrito
 import compras.Carrito;
+//Clase para los pedidos
+import compras.Pedidos;
 
 public class Clientes extends Users {
     
@@ -24,9 +26,10 @@ public class Clientes extends Users {
         System.out.println("===== MENU DE CLIENTES =====");
         System.out.print("\n1. Carrito");
         System.out.print("\n2. Ver productos");
-        System.out.print("\n3. Modificar datos");
-        System.out.print("\n4. Dar de baja la cuenta");
-        System.out.print("\n5. Cerrar sesion");
+        System.out.print("\n3. Pedidos");
+        System.out.print("\n4. Modificar datos");
+        System.out.print("\n5. Dar de baja la cuenta");
+        System.out.print("\n6. Cerrar sesion");
         System.out.print("\n\nTeclee una opcion: ");
         int opcion = scanner.nextInt();
         switch(opcion){
@@ -44,16 +47,62 @@ public class Clientes extends Users {
             }
             
             case 3 -> {
+                sesionPedidos = true; //Activamos la sesion de los pedidos
+                while(sesionPedidos){
+                    menuPedidos();
+                }
+            }
+            
+            case 4 -> {
                 setTipoUser(false); //Clientes
                 modificarDatosMenu();
             }
             
-            case 4 -> {
+            case 5 -> {
                 darBajaMenu();
             }
             
-            case 5 -> {
+            case 6 -> {
                 setSesion(false); //Cerramos la sesion
+            }
+            
+            default -> {
+                System.out.println("Opcion invalida...");
+            }
+        }
+    }
+    
+    @Override
+    public void menuPedidos(){
+        System.out.println("===== MENU DE PEDIDOS =====");
+        System.out.print("\n1. Realizar pedido");
+        System.out.print("\n2. Revisar estado de los pedidos");
+        System.out.print("\n3. Cancelar pedido");
+        System.out.print("\n4. Salir");
+        System.out.print("\n\nTeclee una opcion: ");
+        int opcion = scanner.nextInt();
+        switch(opcion){
+            case 1 -> {
+                Carrito carrito = new Carrito(id);
+                if(carrito.isEmpty()){
+                    System.out.println("No se puede realizar el pedido debido a que tu carrito esta vacio");
+                } else{
+                    Pedidos pedidos = new Pedidos();
+                    pedidos.setIdCliente(id);
+                    pedidos.registrarPedido();
+                }
+            }
+            
+            case 2 -> {
+                
+            }
+            
+            case 3 -> {
+                
+            }
+            
+            case 4 -> {
+                sesionPedidos = false; //Cerramos la sesion de los pedidos
             }
             
             default -> {

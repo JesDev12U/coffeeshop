@@ -22,6 +22,7 @@ public abstract class Users {
     protected String correo;
     protected String password;
     protected boolean sesion;
+    protected boolean sesionPedidos;
     protected Scanner scanner;
     protected boolean tipoUser; //false para clientes, true para empleados
     
@@ -41,7 +42,8 @@ public abstract class Users {
     //Para este método, para los clientes se visualizarán los productos con Estado = true
     //Para los empleados, se visualizarán todos los productos, sin importar su Estado
     protected abstract void verProductos();
-    protected abstract void menuUser();
+    public abstract void menuUser();
+    public abstract void menuPedidos();
     
     protected void modificarDatosMenu(){
         System.out.println("--------- MODIFICAR DATOS ---------");
