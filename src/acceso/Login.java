@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
-import conexiondb.MySQLConnection;
+import db.conexiondb.MySQLConnection;
 
 public class Login extends Acceso{
     private final String password;

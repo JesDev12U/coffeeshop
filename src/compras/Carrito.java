@@ -14,7 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import conexiondb.MySQLConnection;
+import db.conexiondb.MySQLConnection;
 //Para verificar la existencia de productos en la base de datos
 import inventario.Productos;
 //Para la entrada por teclado

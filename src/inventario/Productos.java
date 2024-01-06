@@ -15,7 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import conexiondb.MySQLConnection;
+import db.conexiondb.MySQLConnection;
 //Clase para la entrada y salida de datos
 import java.util.Scanner;
 //Clase para la herencia

@@ -7,7 +7,7 @@
  * @title Conexión a la base de datos coffeeshop en MySQL
  * @procedure La clase tiene el modelo general para la conexión a bases de datos con el manejador MySQL
  */
-package conexiondb;
+package db.conexiondb;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

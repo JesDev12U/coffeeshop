@@ -9,7 +9,7 @@
  */
 package main;
 //Clase para la conexión a la BD de MySQL
-import conexiondb.MySQLConnection;
+import db.conexiondb.MySQLConnection;
 //Clase para la entrada de datos por teclado
 import java.util.Scanner;
 //Importamos las clases para el acceso de usuarios

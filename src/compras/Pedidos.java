@@ -14,7 +14,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Connection;
-import conexiondb.MySQLConnection;
+import db.conexiondb.MySQLConnection;
 //Para obtener la fecha y hora actual
 import java.time.LocalDate;
 import java.time.LocalTime;

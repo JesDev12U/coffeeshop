@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import conexiondb.MySQLConnection;
+import db.conexiondb.MySQLConnection;
 //Clases para el inventario
 import inventario.*;
 
