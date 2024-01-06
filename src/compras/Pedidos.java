@@ -200,7 +200,7 @@ public class Pedidos {
                            JOIN productos p ON dp.IdProducto = p.IdProducto
                            JOIN pedidos pe ON dp.CodigoPedido = pe.CodigoPedido
                            """;
-                query += bln ? "WHERE dp.CodigoPedido = ?;" 
+                query += bln ? "WHERE dp.CodigoPedido = ? AND pe.Cancelado = false;" 
                         : "WHERE dp.CodigoPedido = ? AND pe.IdCliente = ?;"; //Clientes
                 PreparedStatement st = conexion.prepareStatement(query);
                 st.setInt(1, codigoPedido);
@@ -305,6 +305,53 @@ public class Pedidos {
             }
         } catch(SQLException e){
             System.out.println("Error al cancelar el pedido: " + e.toString());
+        }
+    }
+    
+    public void verPedidos(){
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = """
+                               SELECT CodigoPedido, IdCliente, Fecha, Hora, Total, Pendiente
+                               FROM pedidos
+                               WHERE Cancelado = false
+                               ORDER BY Pendiente DESC
+                               """;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                System.out.println("--------- PEDIDOS PENDIENTES ---------");
+                System.out.println("Codigo\tIdCliente\tFecha\t\tHora\t\tTotal\t\tPendiente");
+                while(rs.next()){
+                    int codPedido = rs.getInt(1);
+                    int idCli = rs.getInt(2);
+                    Date fecPedido = rs.getDate(3);
+                    Time horPedido = rs.getTime(4);
+                    float totalPedido = rs.getFloat(5);
+                    boolean pendiente = rs.getBoolean(6);
+                    //Convertimos la fecha y hora en Strings para poderlos imprimir
+                    String fecPedidoStr = String.valueOf(fecPedido);
+                    String horPedidoStr = String.valueOf(horPedido);
+                    String pendienteStr = pendiente ? "SI" : "NO";
+                    //Imprimimos los datos
+                    System.out.println(String.format("%d\t%d\t\t%s\t%s\t%.2f\t\t%s",
+                            codPedido,
+                            idCli,
+                            fecPedidoStr,
+                            horPedidoStr,
+                            totalPedido,
+                            pendienteStr));
+                }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("No se pudo establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("Error para visualizar los pedidos: " + e.toString());
         }
     }
     

@@ -16,6 +16,8 @@ import java.sql.ResultSet;
 import db.conexiondb.MySQLConnection;
 //Clases para el inventario
 import inventario.*;
+//Clase para los pedidos
+import compras.Pedidos;
 
 public class Empleados extends Users{
     
@@ -44,7 +46,10 @@ public class Empleados extends Users{
             }
             
             case 3 -> {
-                System.out.println("In dev...");
+                sesionPedidos = true; //Habilitamos la sesion de pedidos
+                while(sesionPedidos){
+                    menuPedidos();
+                }
             }
             
             case 4 -> {
@@ -68,14 +73,47 @@ public class Empleados extends Users{
     
     @Override
     public void menuPedidos(){
+        Pedidos pedidos = new Pedidos();
         System.out.println("===== MENU DE PEDIDOS =====");
-        System.out.print("\n1. Ver pedidos pendientes");
-        System.out.print("\n2. Ver pedidos completados");
-        System.out.print("\n3. Ver detalles de un pedido");
-        System.out.print("\n4. Aceptar pedido");
-        System.out.print("\n5. Ver estados de los pedidos");
-        System.out.print("\n6. Cambiar estado de un pedido");
-        System.out.print("\n7. Salir");
+        System.out.print("\n1. Ver pedidos");
+        System.out.print("\n2. Ver detalles de un pedido");
+        System.out.print("\n3. Aceptar pedido");
+        System.out.print("\n4. Ver estados de los pedidos");
+        System.out.print("\n5. Cambiar estado de un pedido");
+        System.out.print("\n6. Salir");
+        System.out.print("\n\nTeclee una opcion: ");
+        int opcion = scanner.nextInt();
+        switch(opcion){
+            case 1 -> {
+                pedidos.verPedidos();
+            }
+            
+            case 2 -> {
+                System.out.print("\n\nTeclee el codigo del pedido: ");
+                pedidos.setCodigoPedido(scanner.nextInt());
+                pedidos.verDetallesPedido(true); //true para empleados
+            }
+            
+            case 3 -> {
+                
+            }
+            
+            case 4 -> {
+                
+            }
+            
+            case 5 -> {
+                
+            }
+            
+            case 6 -> {
+                sesionPedidos = false; //Cerramos la sesion de pedidos
+            }
+            
+            default -> {
+                System.out.println("Opcion invalida...");
+            }
+        }
     }
     
     //Metodos abstractos
