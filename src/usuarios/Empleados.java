@@ -250,11 +250,6 @@ public class Empleados extends Users{
     }
     
     @Override
-    protected void visualizarPedidos(){
-        
-    }
-    
-    @Override
     //Se visualizaran los productos sin importar su estado
     protected void verProductos() {
     try {

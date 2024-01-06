@@ -104,7 +104,9 @@ public class Clientes extends Users {
             }
             
             case 4 -> {
-                
+                System.out.print("\n\nTeclee el codigo del pedido: ");
+                pedidos.setCodigoPedido(scanner.nextInt());
+                pedidos.verDetallesPedido(false); //Para los clientes, true para los empleados
             }
             
             case 5 -> {
@@ -298,11 +300,6 @@ public class Clientes extends Users {
             System.out.println(e.toString());
         }
         return "ERROR";
-    }
-    
-    @Override
-    protected void visualizarPedidos(){
-        //Se mostrarán los pedidos 
     }
     
     @Override

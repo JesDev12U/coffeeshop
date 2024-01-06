@@ -171,11 +171,73 @@ public class Pedidos {
                             pendienteStr, 
                             canceladoStr));
                 }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
             } else{
                 System.out.println("No se pudo establecer la conexion con la base de datos");
             }
         } catch(SQLException e){
             System.out.println("No se pudo consultar los pedidos realizados: " + e.toString());
+        }
+    }
+    
+    public void verDetallesPedido(boolean bln){ //false para los clientes, true para los empleados
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = """
+                           SELECT dp.CodigoPedido, 
+                           dp.IdProducto,
+                           p.NombreP,
+                           p.Precio,
+                           dp.Cantidad, 
+                           dp.Importe, 
+                           dp.Detalles AS Detalles_Producto
+                           FROM detallepedidos dp
+                           JOIN productos p ON dp.IdProducto = p.IdProducto
+                           JOIN pedidos pe ON dp.CodigoPedido = pe.CodigoPedido
+                           """;
+                query += bln ? "WHERE dp.CodigoPedido = ?;" 
+                        : "WHERE dp.CodigoPedido = ? AND pe.IdCliente = ?;"; //Clientes
+                PreparedStatement st = conexion.prepareStatement(query);
+                st.setInt(1, codigoPedido);
+                if(!bln) st.setInt(2, idCliente);
+                ResultSet rs = st.executeQuery();
+                
+                System.out.println("--------- DETALLES DEL PEDIDO " + codigoPedido + " ---------");
+                System.out.println("Codigo\tIdProd\tNombreProd\tPrecio\t\tCantidad\tImporte\t\tDetalles");
+                
+                while(rs.next()){
+                    int codPedido = rs.getInt(1);
+                    int idProd = rs.getInt(2);
+                    String nombreProd = rs.getString(3);
+                    float precioProd = rs.getFloat(4);
+                    int cantidadProd = rs.getInt(5);
+                    float importe = rs.getFloat(6);
+                    String detalles = rs.getString(7);
+                    
+                    //Imprimir los datos con alineación
+                    System.out.println(String.format("%d\t%d\t%s\t\t%.2f\t\t%d\t\t%.2f\t\t%s",
+                            codPedido,
+                            idProd,
+                            nombreProd,
+                            precioProd,
+                            cantidadProd,
+                            importe,
+                            detalles));
+                }
+                System.out.println("\nSi no hay ningun dato, el codigo que fue tecleado no fue encontrado en la base de datos");
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("No se pudo realizar la conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo consultar del detalle del pedido: " + e.toString());
         }
     }
     

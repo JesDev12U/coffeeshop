@@ -36,9 +36,6 @@ public abstract class Users {
     protected abstract void modificarUser(int opcionMod); //Modifica el usuario en la BD
     protected abstract void darBajaUser(); //Cambia el estado a 0 en la BD
     public abstract String darBienvenidaUser(); //Se imprime: Bienvenido <NOM_COMPLETO_USER>, se devuelve un String
-    //Para este método, para los clientes se visualizarán los pedidos específicos de un cliente
-    //Para los empleados, se visualizarán todos los pedidos de todos los clientes
-    protected abstract void visualizarPedidos();
     //Para este método, para los clientes se visualizarán los productos con Estado = true
     //Para los empleados, se visualizarán todos los productos, sin importar su Estado
     protected abstract void verProductos();
