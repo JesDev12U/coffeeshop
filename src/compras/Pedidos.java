@@ -241,6 +241,73 @@ public class Pedidos {
         }
     }
     
+    //Verifica si el pedido existe en la base de datos
+    public boolean exist(boolean bln){ //false para clientes, true para empleados
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT * FROM pedidos WHERE CodigoPedido = " + codigoPedido;
+                query += bln ? "" : " AND IdCliente = " + idCliente;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+                return rs.next(); //Si encuentra un registro, entonces si existe el pedido
+            } else{
+                System.out.println("No se pudo establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo comprobar si el pedido existe: " + e.toString());
+        }
+        return false; //Para evitar errores
+    }
+    
+    public void cancelarPedido(){
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                //Si cancelamos el pedido, tenemos que marcar a pendiente como false
+                //Y marcar a cancelado como true
+                //Y después verificamos si el empleado ya tomo el pedido
+                //Si es así, cambiamos el estado a "CANCELADO POR EL CLIENTE"
+                
+                //Query1 -> Actualizamos pendiente y cancelado
+                String query1 = "UPDATE pedidos SET Pendiente = false, Cancelado = true "
+                        + "WHERE CodigoPedido = " + codigoPedido;
+                Statement st1 = conexion.createStatement();
+                st1.executeUpdate(query1);
+                
+                //Query2 -> Verificamos si hay un registro en la tabla estadopedidos
+                String query2 = "SELECT * FROM estadopedidos WHERE CodigoPedido = " + codigoPedido;
+                Statement st2 = conexion.createStatement();
+                ResultSet rs = st2.executeQuery(query2);
+                
+                //Query3 -> Si hay un registro, quiere decir que el empleado aceptó el pedido
+                //Por lo que cambiamos su estado a "CANCELADO POR EL USUARIO"
+                if(rs.next()){
+                    String query3 = "UPDATE estadopedidos SET Estado = ? WHERE CodigoPedido = ?";
+                    PreparedStatement st3 = conexion.prepareStatement(query3);
+                    st3.setString(1, "CANCELADO POR EL USUARIO");
+                    st3.setInt(2, codigoPedido);
+                    st3.executeUpdate();
+                }
+                System.out.println("Se ha cancelado el pedido con exito");
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("Error al tratar de conectarse con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("Error al cancelar el pedido: " + e.toString());
+        }
+    }
+    
     //Setters y Getters
     public int getIdCliente() {
         return idCliente;

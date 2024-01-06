@@ -110,7 +110,10 @@ public class Clientes extends Users {
             }
             
             case 5 -> {
-                
+                System.out.println("\n\nTeclee el codigo del pedido: ");
+                pedidos.setCodigoPedido(scanner.nextInt());
+                if(pedidos.exist(false)) pedidos.cancelarPedido(); //false para clientes, true para empleados
+                else System.out.println("Codigo invalido...");
             }
             
             case 6 -> {

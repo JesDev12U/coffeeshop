@@ -63,7 +63,7 @@ create table detallepedidos(
 create table estadoPedidos(
 	CodigoPedido int not null,
     IdEmpleado int not null,
-    Estado varchar(20),
+    Estado varchar(30),
     foreign key (CodigoPedido) references pedidos(CodigoPedido),
     foreign key (IdEmpleado) references empleados (IdEmpleado)
 );
