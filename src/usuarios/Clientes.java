@@ -74,11 +74,15 @@ public class Clientes extends Users {
     
     @Override
     public void menuPedidos(){
+        Pedidos pedidos = new Pedidos();
+        pedidos.setIdCliente(id);
         System.out.println("===== MENU DE PEDIDOS =====");
         System.out.print("\n1. Realizar pedido");
         System.out.print("\n2. Revisar estado de los pedidos");
-        System.out.print("\n3. Cancelar pedido");
-        System.out.print("\n4. Salir");
+        System.out.print("\n3. Ver pedidos realizados");
+        System.out.print("\n4. Ver detalles de un pedido");
+        System.out.print("\n5. Cancelar pedido");
+        System.out.print("\n6. Salir");
         System.out.print("\n\nTeclee una opcion: ");
         int opcion = scanner.nextInt();
         switch(opcion){
@@ -86,22 +90,28 @@ public class Clientes extends Users {
                 Carrito carrito = new Carrito(id);
                 if(carrito.isEmpty()){
                     System.out.println("No se puede realizar el pedido debido a que tu carrito esta vacio");
-                } else{
-                    Pedidos pedidos = new Pedidos();
-                    pedidos.setIdCliente(id);
+                } else{            
                     pedidos.registrarPedido();
                 }
             }
             
             case 2 -> {
-                
+                pedidos.revisarEstadoPedidos();
             }
             
             case 3 -> {
-                
+                pedidos.verPedidosRealizados();
             }
             
             case 4 -> {
+                
+            }
+            
+            case 5 -> {
+                
+            }
+            
+            case 6 -> {
                 sesionPedidos = false; //Cerramos la sesion de los pedidos
             }
             

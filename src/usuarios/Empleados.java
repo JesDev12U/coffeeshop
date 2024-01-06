@@ -68,7 +68,13 @@ public class Empleados extends Users{
     
     @Override
     public void menuPedidos(){
-        
+        System.out.println("===== MENU DE PEDIDOS =====");
+        System.out.print("\n1. Ver pedidos pendientes");
+        System.out.print("\n2. Ver pedidos completados");
+        System.out.print("\n3. Ver detalles de un pedido");
+        System.out.print("\n4. Aceptar pedido");
+        System.out.print("\n5. Cambiar estado de un pedido");
+        System.out.print("\n6. Salir");
     }
     
     //Metodos abstractos

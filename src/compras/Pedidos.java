@@ -81,6 +81,103 @@ public class Pedidos {
         }
     }
 
+    public void revisarEstadoPedidos(){
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = """
+                               SELECT estadopedidos.CodigoPedido, estadopedidos.IdEmpleado, 
+                               concat(empleados.NombreE, ' ', empleados.ApellidoPaternoE, ' ', empleados.ApellidoMaternoE) 
+                               AS 'Nombre completo del empleado',
+                               estadopedidos.Estado
+                               FROM estadopedidos
+                               INNER JOIN empleados ON estadopedidos.IdEmpleado = empleados.IdEmpleado;""";
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                System.out.println("--------- ESTADO DE LOS PEDIDOS ---------");
+                System.out.println("Codigo\tIDEmp\tNombre Empleado\t\t\t\tEstado");
+                while(rs.next()){
+                    int codPedido = rs.getInt(1);
+                    int idEmp = rs.getInt(2);
+                    String nomCompletoEmp = rs.getString(3);
+                    String estadoPedido = rs.getString(4);
+                    
+                    //Ajustar la longitud máxima del nombre del empleado
+                    int maxLength = 40;
+                    if(nomCompletoEmp.length() > maxLength){
+                        nomCompletoEmp = nomCompletoEmp.substring(0, maxLength);
+                    }
+                    
+                    System.out.println(String.format("%d\t%d\t%-45s\t-20s", 
+                            codPedido,
+                            idEmp,
+                            nomCompletoEmp,
+                            estadoPedido));
+                    
+                }
+                System.out.println("\n\nLos pedidos que no aparecen es porque aun no cuentan con un empleado asignado");
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("No se pudo establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("Error al revisar el estado de los pedidos: " + e.toString());
+        }
+    }
+    
+    public void verPedidosRealizados(){
+        //Solo es una consulta a la tabla pedidos
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = """
+                               SELECT CodigoPedido, 
+                               Fecha, 
+                               Hora, 
+                               Total, 
+                               Pendiente, 
+                               Cancelado 
+                               FROM pedidos WHERE IdCliente = 
+                               """ + idCliente;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                System.out.println("--------- PEDIDOS REALIZADOS ---------");
+                System.out.println("Codigo\tFecha\t\tHora\t\tTotal\t\tPendiente\tCancelado");
+                while(rs.next()){
+                    int codPedido = rs.getInt(1);
+                    Date fechaPedido = rs.getDate(2);
+                    Time horaPedido = rs.getTime(3);
+                    float totalPedido = rs.getFloat(4);
+                    boolean pendiente = rs.getBoolean(5);
+                    boolean cancelado = rs.getBoolean(6);
+                    //Ajustamos los datos a String para poderlos imprimir
+                    String fechaStr = String.valueOf(fechaPedido);
+                    String horaStr = String.valueOf(horaPedido);
+                    String pendienteStr = pendiente ? "SI" : "NO";
+                    String canceladoStr = cancelado ? "SI" : "NO";
+                    
+                    //Imprimir los datos con alineación
+                    System.out.println(String.format("%d\t%s\t%s\t%.2f\t\t%s\t\t%s", 
+                            codPedido, 
+                            fechaStr, 
+                            horaStr, 
+                            totalPedido,
+                            pendienteStr, 
+                            canceladoStr));
+                }
+            } else{
+                System.out.println("No se pudo establecer la conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo consultar los pedidos realizados: " + e.toString());
+        }
+    }
     
     //Setters y Getters
     public int getIdCliente() {
