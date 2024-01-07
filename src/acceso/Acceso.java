@@ -38,4 +38,20 @@ public abstract class Acceso {
         // Verificar si coincide con la expresión regular
         return matcher.matches();
     }
+    
+    //Este método validará que el correo ingresado sea de un administrador
+    //Estructura de un correo de un empleado: xxxx@coffeeshop.admin.mx
+    public boolean verificarCorreoA(){
+        // Expresión regular para validar el correo
+        String regex = "^[a-zA-Z0-9._%+-]+@coffeeshop.admin\\.mx$";
+
+        // Compilar la expresión regular
+        Pattern pattern = Pattern.compile(regex);
+
+        // Crear un matcher para el correo proporcionado
+        Matcher matcher = pattern.matcher(correo);
+
+        // Verificar si coincide con la expresión regular
+        return matcher.matches();
+    }
 }

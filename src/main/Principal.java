@@ -45,27 +45,59 @@ public class Principal {
                             //Una vez verificadas las credenciales, asignamos el menu correspondiente
                             //Es decir, determinamos el tipo de usuario
                             if(login.verificarCorreoE()){
-                                //Para los empleados
-                                Empleados empleados = new Empleados();
-                                empleados.setCorreo(correo); //Asignamos el correo para después dar la bienvenida
-                                //Activamos la sesion
-                                empleados.setSesion(true);
-                                
-                                while(empleados.isSesion()){
-                                    System.out.println("********* SESION DE EMPLEADOS *********");
-                                    System.out.println("Bienvenido " + empleados.darBienvenidaUser() + "\n");
-                                    empleados.menuUser();
+                                if(login.consultarEstado()){
+                                    //Para los empleados
+                                    Empleados empleados = new Empleados();
+                                    empleados.setCorreo(correo); //Asignamos el correo para después dar la bienvenida
+     
+                                    //Activamos la sesion
+                                    empleados.setSesion(true);
+
+                                    while(empleados.isSesion()){
+                                        System.out.println("********* SESION DE EMPLEADOS *********");
+                                        System.out.println("Bienvenido " + empleados.darBienvenidaUser() + "\n");
+                                        empleados.consultarID();
+                                        System.out.println("ID = " + empleados.getId());
+                                        empleados.menuUser();
+                                    }
+                                } else {
+                                    System.out.println("Tu cuenta esta dada de baja, comunicate con un administrador para solucionar tu ingreso");
                                 }
-                            } else{
-                                //Para los clientes
-                                Clientes clientes = new Clientes();
-                                clientes.setCorreo(correo); //Asignamos el correo para después dar la bienvenida
-                                //Activamos la sesion
-                                clientes.setSesion(true);
-                                while(clientes.isSesion()){
-                                    System.out.println("********* SESION DE CLIENTES *********");
-                                    System.out.println("Bienvenido " + clientes.darBienvenidaUser());
-                                    clientes.menuUser();
+                            } 
+                            else if(login.verificarCorreoA()){
+                                if(login.consultarEstado()){
+                                    //Para los admins
+                                    Admins admins = new Admins();
+                                    admins.setCorreo(correo); //Asignamos el correo para después dar la bienvenida
+                                    //Activamos la sesion
+                                    admins.setSesion(true);
+                                    while(admins.isSesion()){
+                                        System.out.println("********* SESION DE ADMINISTRADORES *********");
+                                        System.out.println("Bienvenido " + admins.darBienvenidaUser() + "\n");
+                                        admins.consultarID();
+                                        System.out.println("ID = " + admins.getId());
+                                        admins.menuUser();
+                                    }
+                                } else {
+                                    System.out.println("Tu cuenta esta dada de baja, comunicate con un administrador para solucionar tu ingreso");
+                                }
+                            }
+                            else{
+                                if(login.consultarEstado()){
+                                    //Para los clientes
+                                    Clientes clientes = new Clientes();
+                                    clientes.setCorreo(correo); //Asignamos el correo para después dar la bienvenida
+                                    //Activamos la sesion
+                                    clientes.setSesion(true);
+                                    while(clientes.isSesion()){
+                                        System.out.println("********* SESION DE CLIENTES *********");
+                                        System.out.println("Bienvenido " + clientes.darBienvenidaUser() + "\n");
+                                        clientes.consultarID();
+                                        System.out.println("ID = " + clientes.getId());
+                                        clientes.menuUser();
+                                    }
+                                } else {
+                                    System.out.println("Tu cuenta esta dada de baja, comunicate con un administrador para solucionar tu ingreso");
                                 }
                             }
                         } else{
@@ -99,8 +131,17 @@ public class Principal {
                                 empleado.setCorreo(correo);
                                 empleado.setPassword(password);
                                 empleado.insertarUser();
+                            } else if(registro.verificarCorreoA()){
+                                //Si el correo es de un administrador
+                                Admins admin = new Admins();
+                                admin.setNombre(nombre);
+                                admin.setApellidoPaterno(apellidoPaterno);
+                                admin.setApellidoMaterno(apellidoMaterno);
+                                admin.setCorreo(correo);
+                                admin.setPassword(password);
+                                admin.insertarUser();
                             } else{
-                                //Si el correo es de un cliente
+                                //Si el correo no es de un empleado ni de un admnistrador, entonces, es de un cliente
                                 Clientes cliente = new Clientes();
                                 cliente.setNombre(nombre);
                                 cliente.setApellidoPaterno(apellidoPaterno);

@@ -16,20 +16,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import db.conexiondb.MySQLConnection;
 //Para verificar la existencia de productos en la base de datos
-import inventario.Productos;
-//Para la entrada por teclado
-import java.util.Scanner;
+import inventario.ProductosEmpleados;
 
 public class Carrito extends Compras {
     private final int idCliente;
     private String detalles;
     private int cantidad;
     private float total;
-    private final Scanner scanner;
     
     public Carrito(int idCliente){
         this.idCliente = idCliente;
-        scanner = new Scanner(System.in);
     }
     
     @Override
@@ -49,7 +45,7 @@ public class Carrito extends Compras {
                 scanner.nextLine();
                 idProducto = scanner.nextInt();
                 //Verificamos si el producto existe en la base de datos
-                Productos producto = new Productos();
+                ProductosEmpleados producto = new ProductosEmpleados();
                 producto.idProducto = idProducto;
                 if(!producto.verificarExistenciaProd(false)){ //Buscamos por ID
                     System.out.println("ID invalido...");

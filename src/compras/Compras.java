@@ -9,10 +9,18 @@
  */
 package compras;
 
+//Clase para la entrada de datos por teclado
+import java.util.Scanner;
+
 public abstract class Compras {
     protected int idProducto;
     protected float precio;
     protected boolean sesion;
+    protected Scanner scanner;
+    
+    public Compras(){
+        scanner = new Scanner(System.in);
+    }
     
     protected abstract void addProd();
     protected abstract void modProd(int opcionMod);

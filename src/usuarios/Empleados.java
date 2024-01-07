@@ -15,7 +15,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import db.conexiondb.MySQLConnection;
 //Clases para el inventario
-import inventario.*;
+import inventario.ProductosEmpleados;
 //Clase para los pedidos
 import compras.pedidos.PedidosEmpleados;
 
@@ -34,7 +34,7 @@ public class Empleados extends Users{
         int opcion = scanner.nextInt();
         switch(opcion) {
             case 1 -> {
-                Productos productos = new Productos();
+                ProductosEmpleados productos = new ProductosEmpleados();
                 productos.setSesion(true); //Activamos la sesion
                 while(productos.isSesion()){
                     productos.menu();
@@ -42,18 +42,20 @@ public class Empleados extends Users{
             }
             
             case 2 -> {
-                verProductos();
+                ProductosEmpleados prod = new ProductosEmpleados();
+                prod.verProductos();
             }
             
             case 3 -> {
-                sesionPedidos = true; //Habilitamos la sesion de pedidos
-                while(sesionPedidos){
-                    menuPedidos();
+                PedidosEmpleados pedEmp = new PedidosEmpleados();
+                pedEmp.setSesion(true); //Habilitamos la sesion de pedidos
+                while(pedEmp.isSesion()){
+                    pedEmp.menuPedidos();
                 }
             }
             
             case 4 -> {
-                setTipoUser(true); //Empleados
+                tipoUser = "EMPLEADO";
                 modificarDatosMenu();
             }
             
@@ -62,67 +64,7 @@ public class Empleados extends Users{
             }
             
             case 6 -> {
-                setSesion(false); //Cerramos la sesion
-            }
-            
-            default -> {
-                System.out.println("Opcion invalida...");
-            }
-        }
-    }
-    
-    @Override
-    public void menuPedidos(){
-        PedidosEmpleados pedidos = new PedidosEmpleados();
-        System.out.println("===== MENU DE PEDIDOS =====");
-        System.out.print("\n1. Ver pedidos");
-        System.out.print("\n2. Ver detalles de un pedido");
-        System.out.print("\n3. Aceptar pedido");
-        System.out.print("\n4. Ver estados de los pedidos");
-        System.out.print("\n5. Cambiar estado de un pedido");
-        System.out.print("\n6. Salir");
-        System.out.print("\n\nTeclee una opcion: ");
-        int opcion = scanner.nextInt();
-        switch(opcion){
-            case 1 -> {
-                pedidos.verPedidos();
-            }
-            
-            case 2 -> {
-                System.out.print("\n\nTeclee el codigo del pedido: ");
-                pedidos.setCodigoPedido(scanner.nextInt());
-                pedidos.verDetallesPedido();
-            }
-            
-            case 3 -> {
-                System.out.println("\n\nTeclee el codigo del pedido: ");
-                pedidos.setCodigoPedido(scanner.nextInt());
-                consultarID();
-                pedidos.setIdEmpleado(id);
-                if(pedidos.isPendiente()) pedidos.aceptarPedido();
-                else System.out.println("Codigo invalido...");
-            }
-            
-            case 4 -> {
-                consultarID();
-                pedidos.setIdEmpleado(id);
-                pedidos.revisarEstadoPedidos();
-            }
-            
-            case 5 -> {
-                System.out.println("\n\nTeclee el codigo del pedido: ");
-                pedidos.setCodigoPedido(scanner.nextInt());
-                if(pedidos.isCancelado()){
-                    System.out.println("Codigo invalido...");
-                } else{
-                    System.out.println("\n\nTeclee el nuevo estado del pedido: ");
-                    scanner.nextLine();
-                    pedidos.modificarEstado(scanner.nextLine());
-                }
-            }
-            
-            case 6 -> {
-                sesionPedidos = false; //Cerramos la sesion de pedidos
+                sesion = false;
             }
             
             default -> {
@@ -133,7 +75,7 @@ public class Empleados extends Users{
     
     //Metodos abstractos
     @Override
-    protected void consultarID(){
+    public void consultarID(){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
@@ -301,49 +243,5 @@ public class Empleados extends Users{
             System.out.println("Error al consultar el nombre del empleado: " + e.toString());
         }
         return "ERROR";
-    }
-    
-    @Override
-    //Se visualizaran los productos sin importar su estado
-    protected void verProductos() {
-        try {
-            if (MySQLConnection.conectarBD()) {
-                Connection conexion = MySQLConnection.getConexion();
-                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
-                conexion.setAutoCommit(false);
-                String query = "SELECT * FROM productos";
-                Statement st = conexion.createStatement();
-                ResultSet rs = st.executeQuery(query);
-                System.out.println("--------- PRODUCTOS ---------");
-                System.out.println("ID\tNombre\t\t\t\tDescripcion\t\t\t\t\t\tPrecio\t\tDisponible");
-                while (rs.next()) {
-                    int idProd = rs.getInt(1);
-                    String nomProd = rs.getString(2);
-                    String descripcion = rs.getString(3);
-                    float precio = rs.getFloat(4);
-                    boolean disponible = rs.getBoolean(5);
-
-                    // Formatear la salida de la columna "Disponible" como SI o NO
-                    String disponibleStr = disponible ? "SI" : "NO";
-
-                    // Ajustar la longitud máxima de la descripción
-                    int maxLength = 50;
-                    if (descripcion.length() > maxLength) {
-                        descripcion = descripcion.substring(0, maxLength);
-                    }
-
-                    // Imprimir los datos con alineación y columnas más anchas para nombre y descripción
-                    System.out.println(String.format("%d\t%-25s\t%-55s\t%.2f\t\t%s", idProd, nomProd, 
-                            descripcion, precio, disponibleStr));
-                }
-                //Confirmamos los cambios como una única transacción en la BD
-                conexion.commit();
-                conexion.setAutoCommit(true);
-            } else {
-                System.out.println("No se pudo conectar a la base de datos");
-            }
-        } catch (SQLException e) {
-            System.out.println("Error para mostrar los productos: " + e.toString());
-        }
     }
 }

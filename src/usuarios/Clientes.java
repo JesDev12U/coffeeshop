@@ -18,6 +18,8 @@ import db.conexiondb.MySQLConnection;
 import compras.Carrito;
 //Clase para los pedidos
 import compras.pedidos.PedidosClientes;
+//Clase para la visualizacion de productos
+import inventario.ProductosClientes;
 
 public class Clientes extends Users {
     
@@ -43,18 +45,20 @@ public class Clientes extends Users {
             }
             
             case 2 -> {
-                verProductos();
+                ProductosClientes prod = new ProductosClientes();
+                prod.verProductos();
             }
             
             case 3 -> {
-                sesionPedidos = true; //Activamos la sesion de los pedidos
-                while(sesionPedidos){
-                    menuPedidos();
+                PedidosClientes pedCli = new PedidosClientes();
+                pedCli.setSesion(true); //Activamos la sesion de los pedidos
+                while(pedCli.isSesion()){
+                    pedCli.menuPedidos();
                 }
             }
             
             case 4 -> {
-                setTipoUser(false); //Clientes
+                tipoUser = "CLIENTE";
                 modificarDatosMenu();
             }
             
@@ -63,7 +67,7 @@ public class Clientes extends Users {
             }
             
             case 6 -> {
-                setSesion(false); //Cerramos la sesion
+                sesion = false;
             }
             
             default -> {
@@ -73,62 +77,7 @@ public class Clientes extends Users {
     }
     
     @Override
-    public void menuPedidos(){
-        PedidosClientes pedidos = new PedidosClientes();
-        pedidos.setIdCliente(id);
-        System.out.println("===== MENU DE PEDIDOS =====");
-        System.out.print("\n1. Realizar pedido");
-        System.out.print("\n2. Revisar estado de los pedidos");
-        System.out.print("\n3. Ver pedidos realizados");
-        System.out.print("\n4. Ver detalles de un pedido");
-        System.out.print("\n5. Cancelar pedido");
-        System.out.print("\n6. Salir");
-        System.out.print("\n\nTeclee una opcion: ");
-        int opcion = scanner.nextInt();
-        switch(opcion){
-            case 1 -> {
-                Carrito carrito = new Carrito(id);
-                if(carrito.isEmpty()){
-                    System.out.println("No se puede realizar el pedido debido a que tu carrito esta vacio");
-                } else{            
-                    pedidos.registrarPedido();
-                }
-            }
-            
-            case 2 -> {
-                pedidos.revisarEstadoPedidos();
-            }
-            
-            case 3 -> {
-                pedidos.verPedidosRealizados();
-            }
-            
-            case 4 -> {
-                System.out.print("\n\nTeclee el codigo del pedido: ");
-                pedidos.setCodigoPedido(scanner.nextInt());
-                pedidos.verDetallesPedido();
-            }
-            
-            case 5 -> {
-                System.out.println("\n\nTeclee el codigo del pedido: ");
-                pedidos.setCodigoPedido(scanner.nextInt());
-                if(pedidos.exist()) pedidos.cancelarPedido();
-                else System.out.println("Codigo invalido...");
-            }
-            
-            case 6 -> {
-                sesionPedidos = false; //Cerramos la sesion de los pedidos
-            }
-            
-            default -> {
-                System.out.println("Opcion invalida...");
-            }
-        }
-    }
-    
-    //Este método servirá para consultar el ID del cliente mediante el correo electrónico
-    @Override
-    protected void consultarID(){
+    public void consultarID(){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
@@ -303,44 +252,5 @@ public class Clientes extends Users {
             System.out.println(e.toString());
         }
         return "ERROR";
-    }
-    
-    @Override
-    //Se visualizarán únicamente los productos activos Estado = true
-    protected void verProductos(){
-        try{
-            if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
-                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
-                conexion.setAutoCommit(false);
-                String query = "SELECT IdProducto, NombreP, Descripcion, Precio FROM productos WHERE Estado = true";
-                Statement st = conexion.createStatement();
-                ResultSet rs = st.executeQuery(query);
-                System.out.println("--------- PRODUCTOS ---------");
-                System.out.println("ID\tNombre\t\t\t\tDescripcion\t\t\t\t\t\tPrecio");
-                while(rs.next()){
-                    int idProd = rs.getInt(1);
-                    String nomProd = rs.getString(2);
-                    String descripcion = rs.getString(3);
-                    float precio = rs.getFloat(4);
-                    
-                    //Ajustar la longitud máxima de la descripción
-                    int maxLength = 50;
-                    if(descripcion.length() > maxLength){
-                        descripcion = descripcion.substring(0, maxLength);
-                    }
-                    
-                    System.out.println(String.format("%d\t%-25s\t%-55s\t%.2f", idProd, 
-                            nomProd, descripcion, precio));
-                }
-                //Confirmamos los cambios como una única transacción en la BD
-                conexion.commit();
-                conexion.setAutoCommit(true);
-            } else {
-                System.out.println("No se pudo conectar a la base de datos");
-            }
-        } catch(SQLException e){
-            System.out.println("Error al mostrar los productos activos: " + e.toString());
-        }
     }
 }

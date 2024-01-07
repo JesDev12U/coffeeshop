@@ -30,6 +30,57 @@ public class PedidosClientes extends Pedidos{
         tipoUser = false; //Establecemos que es cliente
     }
     
+    public void menuPedidos(){
+        System.out.println("===== MENU DE PEDIDOS =====");
+        System.out.print("\n1. Realizar pedido");
+        System.out.print("\n2. Revisar estado de los pedidos");
+        System.out.print("\n3. Ver pedidos realizados");
+        System.out.print("\n4. Ver detalles de un pedido");
+        System.out.print("\n5. Cancelar pedido");
+        System.out.print("\n6. Salir");
+        System.out.print("\n\nTeclee una opcion: ");
+        int opcion = scanner.nextInt();
+        switch(opcion){
+            case 1 -> {
+                Carrito carrito = new Carrito(idCliente);
+                if(carrito.isEmpty()){
+                    System.out.println("No se puede realizar el pedido debido a que tu carrito esta vacio");
+                } else{            
+                    registrarPedido();
+                }
+            }
+            
+            case 2 -> {
+                revisarEstadoPedidos();
+            }
+            
+            case 3 -> {
+                verPedidosRealizados();
+            }
+            
+            case 4 -> {
+                System.out.print("\n\nTeclee el codigo del pedido: ");
+                setCodigoPedido(scanner.nextInt());
+                verDetallesPedido();
+            }
+            
+            case 5 -> {
+                System.out.println("\n\nTeclee el codigo del pedido: ");
+                setCodigoPedido(scanner.nextInt());
+                if(exist()) cancelarPedido();
+                else System.out.println("Codigo invalido...");
+            }
+            
+            case 6 -> {
+                sesion = false; //Cerramos la sesion de los pedidos
+            }
+            
+            default -> {
+                System.out.println("Opcion invalida...");
+            }
+        }
+    }
+    
     public void registrarPedido() {
         try {
             if (MySQLConnection.conectarBD()) {
@@ -83,6 +134,30 @@ public class PedidosClientes extends Pedidos{
         } catch (SQLException e) {
             System.out.println("Error al registrar el pedido: " + e.toString());
         }
+    }
+    
+    //Verifica si el pedido existe en la base de datos
+    public boolean exist(){
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT * FROM pedidos WHERE CodigoPedido = " + codigoPedido + "AND IdCliente = " + idCliente;
+                //query += tipoUser ? "" : " AND IdCliente = " + idCliente;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+                return rs.next(); //Si encuentra un registro, entonces si existe el pedido
+            } else{
+                System.out.println("No se pudo establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo comprobar si el pedido existe: " + e.toString());
+        }
+        return false; //Para evitar errores
     }
     
     @Override

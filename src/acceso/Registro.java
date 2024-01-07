@@ -26,8 +26,12 @@ public class Registro extends Acceso {
                 Connection conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
-                String query = (verificarCorreoE()) ? "SELECT * FROM empleados WHERE CorreoE = ?" : 
-                        "SELECT * FROM clientes WHERE CorreoE = ?";
+                /*String query = (verificarCorreoE()) ? "SELECT * FROM empleados WHERE CorreoE = ?" : 
+                        "SELECT * FROM clientes WHERE CorreoE = ?";*/
+                String query;
+                if(verificarCorreoE()) query = "SELECT * FROM empleados WHERE CorreoE = ?";
+                else if (verificarCorreoA()) query = "SELECT * FROM admins WHERE CorreoE = ?";
+                else query = "SELECT * FROM clientes WHERE CorreoE = ?";
                 PreparedStatement st = conexion.prepareStatement(query);
                 st.setString(1, correo);
                 ResultSet rs = st.executeQuery();

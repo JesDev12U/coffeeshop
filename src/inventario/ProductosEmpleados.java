@@ -1,11 +1,11 @@
 /**
- * @file Productos.java
- * @brief Clase para la lógica de los productos
+ * @file ProductosEmpleados.java
+ * @brief Clase para la gestión de productos por parte de los empleados
  * @version 1.0
- * @date 2024-01-02
+ * @date 2024-01-06
  * @author Jesus Antonio Lopez Bandala
- * @procedure La clase contendrá los métodos para los productos del inventario
- * La mayoría de métodos los usa el empleado y algunos otros el carrito
+ * @procedure Esta clase representa la composición de los productos por parte de los empleados
+ * Es decir, contiene métodos para interactuar con los productos que solo el empleado tiene acceso a ellos
  */
 
 package inventario;
@@ -16,20 +16,56 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import db.conexiondb.MySQLConnection;
-//Clase para la entrada y salida de datos
-import java.util.Scanner;
 //Clase para la herencia
 import compras.Compras;
 
-public class Productos extends Compras {
+public class ProductosEmpleados extends Compras {
     private String nombre;
     private String descripcion;
-    private final Scanner scanner;
-    
-    public Productos(){
-        scanner = new Scanner(System.in);
-    }
 
+    //Se visualizaran los productos sin importar su estado
+    public void verProductos() {
+        try {
+            if (MySQLConnection.conectarBD()) {
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT * FROM productos";
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                System.out.println("--------- PRODUCTOS ---------");
+                System.out.println("ID\tNombre\t\t\t\tDescripcion\t\t\t\t\t\tPrecio\t\tDisponible");
+                while (rs.next()) {
+                    int idProd = rs.getInt(1);
+                    String nomProd = rs.getString(2);
+                    String descripcion = rs.getString(3);
+                    float precio = rs.getFloat(4);
+                    boolean disponible = rs.getBoolean(5);
+
+                    // Formatear la salida de la columna "Disponible" como SI o NO
+                    String disponibleStr = disponible ? "SI" : "NO";
+
+                    // Ajustar la longitud máxima de la descripción
+                    int maxLength = 50;
+                    if (descripcion.length() > maxLength) {
+                        descripcion = descripcion.substring(0, maxLength);
+                    }
+
+                    // Imprimir los datos con alineación y columnas más anchas para nombre y descripción
+                    System.out.println(String.format("%d\t%-25s\t%-55s\t%.2f\t\t%s", idProd, nomProd, 
+                            descripcion, precio, disponibleStr));
+                }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else {
+                System.out.println("No se pudo conectar a la base de datos");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error para mostrar los productos: " + e.toString());
+        }
+    }
+    
     @Override
     public void menu(){
         System.out.println("===== MENU DE INVENTARIO =====");

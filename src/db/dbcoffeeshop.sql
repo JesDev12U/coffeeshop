@@ -17,8 +17,18 @@ create table empleados(
 	ApellidoPaternoE varchar(30) not null,
 	ApellidoMaternoE varchar(30) not null,
 	CorreoE varchar(50) not null,
-	PasswordE varchar(16) not null,
+	PasswordA varchar(16) not null,
 	Estado boolean not null
+);
+
+create table admins(
+	IdAdmin int primary key auto_increment,
+    NombreA varchar(30) not null,
+    ApellidoPaternoA varchar(30) not null,
+    ApellidoMaternoA varchar(30) not null,
+    CorreoE varchar(50) not null,
+    PasswordA varchar(16) not null,
+    Estado boolean not null
 );
 
 create table pedidos(

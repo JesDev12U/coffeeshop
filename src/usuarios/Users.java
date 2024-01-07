@@ -22,25 +22,20 @@ public abstract class Users {
     protected String correo;
     protected String password;
     protected boolean sesion;
-    protected boolean sesionPedidos;
     protected Scanner scanner;
-    protected boolean tipoUser; //false para clientes, true para empleados
+    protected String tipoUser; //Se establece que usuario es el que inicia sesion
     
     public Users(){
         scanner = new Scanner(System.in);
     }
     
     //Metodos abstractos
-    protected abstract void consultarID(); //Consulta el ID del usuario mediante su correo
+    public abstract void consultarID(); //Consulta el ID del usuario mediante su correo
     public abstract void insertarUser(); //Inserta el usuario a la BD
     protected abstract void modificarUser(int opcionMod); //Modifica el usuario en la BD
     protected abstract void darBajaUser(); //Cambia el estado a 0 en la BD
     public abstract String darBienvenidaUser(); //Se imprime: Bienvenido <NOM_COMPLETO_USER>, se devuelve un String
-    //Para este método, para los clientes se visualizarán los productos con Estado = true
-    //Para los empleados, se visualizarán todos los productos, sin importar su Estado
-    protected abstract void verProductos();
     public abstract void menuUser();
-    public abstract void menuPedidos();
     
     protected void modificarDatosMenu(){
         System.out.println("--------- MODIFICAR DATOS ---------");
@@ -80,15 +75,15 @@ public abstract class Users {
                 scanner.nextLine();
                 correo = scanner.nextLine();
                 Registro registro = new Registro(correo);
-                if(registro.validarExistencia()){
+                if(registro.validarExistencia())
                     System.out.println("\nEse correo ya esta en uso");
-                } else if(!registro.verificarCorreoE() && tipoUser){ //Si es empleado y su correo no es de empleado
+                else if(!registro.verificarCorreoE() && tipoUser.equals("EMPLEADO")) //Si es empleado y su correo no es de empleado
                     System.out.println("\nNo se puede ingresar ese correo debido a que eres empleado");
-                } else if(registro.verificarCorreoE() && !tipoUser) //Si es cliente y su correo es de empleado
+                else if(registro.verificarCorreoE() && !tipoUser.equals("EMPLEADO")) //Si es cliente y su correo es de empleado
                     System.out.println("\nCorreo invalido...");
-                else{
-                    modificarUser(opcionMod);
-                }
+                else if(registro.verificarCorreoA() && !tipoUser.equals("ADMINISTRADOR"))
+                    System.out.println("\nCorreo invalido...");
+                else modificarUser(opcionMod);
             }
                     
             case 5 -> {
@@ -172,13 +167,11 @@ public abstract class Users {
         this.sesion = sesion;
     }
 
-    public boolean isTipoUser() {
-        return tipoUser;
+    public int getId() {
+        return id;
     }
 
-    public void setTipoUser(boolean tipoUser) {
-        this.tipoUser = tipoUser;
+    public void setId(int id) {
+        this.id = id;
     }
-    
-    
 }

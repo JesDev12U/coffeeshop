@@ -30,8 +30,15 @@ public class Login extends Acceso{
                 Connection conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
-                String query = (verificarCorreoE()) ? "SELECT * FROM empleados WHERE CorreoE = ? AND PasswordE = ?" : 
-                        "SELECT * FROM clientes WHERE CorreoE = ? AND PasswordC = ?";
+                /*String query = (verificarCorreoE()) ? "SELECT * FROM empleados WHERE CorreoE = ? AND PasswordE = ?" : 
+                        "SELECT * FROM clientes WHERE CorreoE = ? AND PasswordC = ?";*/
+                String query;
+                //Verificamos si es admin
+                if(verificarCorreoA()) query = "SELECT * FROM admins WHERE CorreoE = ? AND PasswordA = ?;";
+                //Si no, verificamos si es empleado
+                else if(verificarCorreoE()) query = "SELECT * FROM empleados WHERE CorreoE = ? AND PasswordE = ?";
+                //Si no, entonces es cliente
+                else query = "SELECT * FROM clientes WHERE CorreoE = ? AND PasswordC = ?";
                 PreparedStatement st = conexion.prepareStatement(query);
                 st.setString(1, correo);
                 st.setString(2, password);
@@ -57,7 +64,15 @@ public class Login extends Acceso{
                 Connection conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
-                String query = (verificarCorreoE()) ? "SELECT Estado FROM empleados WHERE CorreoE = '" + correo + "'" : "SELECT Estado FROM clientes WHERE CorreoE = '" + correo + "'";
+                //String query = (verificarCorreoE()) ? "SELECT Estado FROM empleados WHERE CorreoE = '" + correo + "'" : "SELECT Estado FROM clientes WHERE CorreoE = '" + correo + "'";
+                String query;
+                //Verificamos si es Admin
+                if(verificarCorreoA()) query = "SELECT Estado FROM admins WHERE CorreoE = '" + correo + "'";
+                //Si no, verificamos si es empleado
+                else if(verificarCorreoE()) query = "SELECT Estado FROM empleados WHERE CorreoE = '" + correo + "'";
+                //Si no, entonces es cliente
+                else query = "SELECT Estado FROM clientes WHERE CorreoE = '" + correo + "'";
+                
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
                 while(rs.next()){
@@ -75,27 +90,5 @@ public class Login extends Acceso{
             System.out.println("No se pudo verificar el estado");
         }
         return false;
-    }
-    
-    //Este método servirá para dar de alta a los usuarios
-    //Solo es cambiar su estado a True
-    public void darAltaUser(){
-        try{
-            if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
-                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
-                conexion.setAutoCommit(false);
-                String query = (verificarCorreoE()) ? "UPDATE empleados SET Estado = true WHERE CorreoE = '" + correo + "'" : "UPDATE clientes SET Estado = true WHERE CorreoE = '" + correo + "'";
-                PreparedStatement st = conexion.prepareStatement(query);
-                st.executeUpdate();
-                //Confirmamos los cambios como una única transacción en la BD
-                conexion.commit();
-                conexion.setAutoCommit(true);
-            } else{
-                System.out.println("Error para establecer conexion con la base de datos");
-            }
-        } catch(SQLException e){
-            System.out.println("Error para dar de alta al usuario: " + e.toString());
-        }
     }
 }

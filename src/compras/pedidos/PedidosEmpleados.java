@@ -25,6 +25,60 @@ public class PedidosEmpleados extends Pedidos{
         tipoUser = true; //Establecemos que es un empleado
     }
     
+    public void menuPedidos(){
+        System.out.println("===== MENU DE PEDIDOS =====");
+        System.out.print("\n1. Ver pedidos");
+        System.out.print("\n2. Ver detalles de un pedido");
+        System.out.print("\n3. Aceptar pedido");
+        System.out.print("\n4. Ver estados de los pedidos");
+        System.out.print("\n5. Cambiar estado de un pedido");
+        System.out.print("\n6. Salir");
+        System.out.print("\n\nTeclee una opcion: ");
+        int opcion = scanner.nextInt();
+        switch(opcion){
+            case 1 -> {
+                verPedidos();
+            }
+            
+            case 2 -> {
+                System.out.print("\n\nTeclee el codigo del pedido: ");
+                setCodigoPedido(scanner.nextInt());
+                verDetallesPedido();
+            }
+            
+            case 3 -> {
+                System.out.println("\n\nTeclee el codigo del pedido: ");
+                codigoPedido = scanner.nextInt();
+                if(isPendiente()) aceptarPedido();
+                else System.out.println("Codigo invalido...");
+            }
+            
+            case 4 -> {
+                revisarEstadoPedidos();
+            }
+            
+            case 5 -> {
+                System.out.println("\n\nTeclee el codigo del pedido: ");
+                codigoPedido = scanner.nextInt();
+                if(isCancelado()){
+                    System.out.println("Codigo invalido...");
+                } else{
+                    System.out.println("\n\nTeclee el nuevo estado del pedido: ");
+                    scanner.nextLine();
+                    modificarEstado(scanner.nextLine());
+                }
+            }
+            
+            case 6 -> {
+                sesion = false; //Cerramos la sesion de pedidos
+            }
+            
+            default -> {
+                System.out.println("Opcion invalida...");
+            }
+        }
+    }
+    
     public void verPedidos(){
         try{
             if(MySQLConnection.conectarBD()){

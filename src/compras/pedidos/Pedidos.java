@@ -9,12 +9,14 @@
  */
 package compras.pedidos;
 
+//Clases para la base de datos
 import db.conexiondb.MySQLConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+//Clase para la entrada de datos por teclado
+import java.util.Scanner;
 
 public abstract class Pedidos {
     protected int idCliente;
@@ -24,8 +26,13 @@ public abstract class Pedidos {
     protected boolean tipoUser; //false para los clientes, true para los empleados
     //Se define el boolean tipoUser para no tener que hacer una implementación en la clase
     //PedidosClientes y PedidosEmpleados ya que lo unico que cambia en estos métodos es un WHERE
+    protected Scanner scanner;
     
-    public void verDetallesPedido(){ //false para los clientes, true para los empleados
+    public Pedidos(){
+        scanner = new Scanner(System.in);
+    }
+    
+    public void verDetallesPedido(){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
@@ -82,30 +89,6 @@ public abstract class Pedidos {
         } catch(SQLException e){
             System.out.println("No se pudo consultar del detalle del pedido: " + e.toString());
         }
-    }
-    
-    //Verifica si el pedido existe en la base de datos
-    public boolean exist(){ //false para clientes, true para empleados
-        try{
-            if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
-                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
-                conexion.setAutoCommit(false);
-                String query = "SELECT * FROM pedidos WHERE CodigoPedido = " + codigoPedido;
-                query += tipoUser ? "" : " AND IdCliente = " + idCliente;
-                Statement st = conexion.createStatement();
-                ResultSet rs = st.executeQuery(query);
-                //Confirmamos los cambios como una única transacción en la BD
-                conexion.commit();
-                conexion.setAutoCommit(true);
-                return rs.next(); //Si encuentra un registro, entonces si existe el pedido
-            } else{
-                System.out.println("No se pudo establecer conexion con la base de datos");
-            }
-        } catch(SQLException e){
-            System.out.println("No se pudo comprobar si el pedido existe: " + e.toString());
-        }
-        return false; //Para evitar errores
     }
     
     public abstract void revisarEstadoPedidos();
