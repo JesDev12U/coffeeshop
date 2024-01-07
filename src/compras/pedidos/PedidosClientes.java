@@ -1,30 +1,34 @@
 /**
- * @file Pedidos.java
+ * @file PedidosClientes.java
  * @brief Clase para el control de los pedidos de los clientes
  * @version 1.0
- * @date 2024-01-03
+ * @date 2024-01-06
  * @author Jesus Antonio Lopez Bandala
  * @procedure Esta clase contiene los métodos necesarios para la lógica
  * de los pedidos de los clientes
  */
-package compras;
-//Clases para la base de datos
+package compras.pedidos;
+
+//Carrito del cliente
+import compras.Carrito;
+//Clases necesarias para la base de datos
+import db.conexiondb.MySQLConnection;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Connection;
-import db.conexiondb.MySQLConnection;
-//Para obtener la fecha y hora actual
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.sql.Statement;
+//Para el control de Fecha y Hora
 import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
-public class Pedidos {
-    private int idCliente;
-    private int codigoPedido;
-    private boolean sesion;
+public class PedidosClientes extends Pedidos{
+    
+    public PedidosClientes(){
+        tipoUser = false; //Establecemos que es cliente
+    }
     
     public void registrarPedido() {
         try {
@@ -80,8 +84,8 @@ public class Pedidos {
             System.out.println("Error al registrar el pedido: " + e.toString());
         }
     }
-
-    public void revisarEstadoPedidos(){
+    
+     public void revisarEstadoPedidos(){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
@@ -128,7 +132,7 @@ public class Pedidos {
             System.out.println("Error al revisar el estado de los pedidos: " + e.toString());
         }
     }
-    
+     
     public void verPedidosRealizados(){
         //Solo es una consulta a la tabla pedidos
         try{
@@ -182,89 +186,6 @@ public class Pedidos {
         }
     }
     
-    public void verDetallesPedido(boolean bln){ //false para los clientes, true para los empleados
-        try{
-            if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
-                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
-                conexion.setAutoCommit(false);
-                String query = """
-                           SELECT dp.CodigoPedido, 
-                           dp.IdProducto,
-                           p.NombreP,
-                           p.Precio,
-                           dp.Cantidad, 
-                           dp.Importe, 
-                           dp.Detalles AS Detalles_Producto
-                           FROM detallepedidos dp
-                           JOIN productos p ON dp.IdProducto = p.IdProducto
-                           JOIN pedidos pe ON dp.CodigoPedido = pe.CodigoPedido
-                           """;
-                query += bln ? "WHERE dp.CodigoPedido = ? AND pe.Cancelado = false;" 
-                        : "WHERE dp.CodigoPedido = ? AND pe.IdCliente = ?;"; //Clientes
-                PreparedStatement st = conexion.prepareStatement(query);
-                st.setInt(1, codigoPedido);
-                if(!bln) st.setInt(2, idCliente);
-                ResultSet rs = st.executeQuery();
-                
-                System.out.println("--------- DETALLES DEL PEDIDO " + codigoPedido + " ---------");
-                System.out.println("Codigo\tIdProd\tNombreProd\tPrecio\t\tCantidad\tImporte\t\tDetalles");
-                
-                while(rs.next()){
-                    int codPedido = rs.getInt(1);
-                    int idProd = rs.getInt(2);
-                    String nombreProd = rs.getString(3);
-                    float precioProd = rs.getFloat(4);
-                    int cantidadProd = rs.getInt(5);
-                    float importe = rs.getFloat(6);
-                    String detalles = rs.getString(7);
-                    
-                    //Imprimir los datos con alineación
-                    System.out.println(String.format("%d\t%d\t%s\t\t%.2f\t\t%d\t\t%.2f\t\t%s",
-                            codPedido,
-                            idProd,
-                            nombreProd,
-                            precioProd,
-                            cantidadProd,
-                            importe,
-                            detalles));
-                }
-                System.out.println("\nSi no hay ningun dato, el codigo que fue tecleado no fue encontrado en la base de datos");
-                //Confirmamos los cambios como una única transacción en la BD
-                conexion.commit();
-                conexion.setAutoCommit(true);
-            } else{
-                System.out.println("No se pudo realizar la conexion con la base de datos");
-            }
-        } catch(SQLException e){
-            System.out.println("No se pudo consultar del detalle del pedido: " + e.toString());
-        }
-    }
-    
-    //Verifica si el pedido existe en la base de datos
-    public boolean exist(boolean bln){ //false para clientes, true para empleados
-        try{
-            if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
-                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
-                conexion.setAutoCommit(false);
-                String query = "SELECT * FROM pedidos WHERE CodigoPedido = " + codigoPedido;
-                query += bln ? "" : " AND IdCliente = " + idCliente;
-                Statement st = conexion.createStatement();
-                ResultSet rs = st.executeQuery(query);
-                //Confirmamos los cambios como una única transacción en la BD
-                conexion.commit();
-                conexion.setAutoCommit(true);
-                return rs.next(); //Si encuentra un registro, entonces si existe el pedido
-            } else{
-                System.out.println("No se pudo establecer conexion con la base de datos");
-            }
-        } catch(SQLException e){
-            System.out.println("No se pudo comprobar si el pedido existe: " + e.toString());
-        }
-        return false; //Para evitar errores
-    }
-    
     public void cancelarPedido(){
         try{
             if(MySQLConnection.conectarBD()){
@@ -288,11 +209,11 @@ public class Pedidos {
                 ResultSet rs = st2.executeQuery(query2);
                 
                 //Query3 -> Si hay un registro, quiere decir que el empleado aceptó el pedido
-                //Por lo que cambiamos su estado a "CANCELADO POR EL USUARIO"
+                //Por lo que cambiamos su estado a "CANCELADO POR EL CLIENTE"
                 if(rs.next()){
                     String query3 = "UPDATE estadopedidos SET Estado = ? WHERE CodigoPedido = ?";
                     PreparedStatement st3 = conexion.prepareStatement(query3);
-                    st3.setString(1, "CANCELADO POR EL USUARIO");
+                    st3.setString(1, "CANCELADO POR EL CLIENTE");
                     st3.setInt(2, codigoPedido);
                     st3.executeUpdate();
                 }
@@ -307,76 +228,4 @@ public class Pedidos {
             System.out.println("Error al cancelar el pedido: " + e.toString());
         }
     }
-    
-    public void verPedidos(){
-        try{
-            if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
-                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
-                conexion.setAutoCommit(false);
-                String query = """
-                               SELECT CodigoPedido, IdCliente, Fecha, Hora, Total, Pendiente
-                               FROM pedidos
-                               WHERE Cancelado = false
-                               ORDER BY Pendiente DESC
-                               """;
-                Statement st = conexion.createStatement();
-                ResultSet rs = st.executeQuery(query);
-                System.out.println("--------- PEDIDOS PENDIENTES ---------");
-                System.out.println("Codigo\tIdCliente\tFecha\t\tHora\t\tTotal\t\tPendiente");
-                while(rs.next()){
-                    int codPedido = rs.getInt(1);
-                    int idCli = rs.getInt(2);
-                    Date fecPedido = rs.getDate(3);
-                    Time horPedido = rs.getTime(4);
-                    float totalPedido = rs.getFloat(5);
-                    boolean pendiente = rs.getBoolean(6);
-                    //Convertimos la fecha y hora en Strings para poderlos imprimir
-                    String fecPedidoStr = String.valueOf(fecPedido);
-                    String horPedidoStr = String.valueOf(horPedido);
-                    String pendienteStr = pendiente ? "SI" : "NO";
-                    //Imprimimos los datos
-                    System.out.println(String.format("%d\t%d\t\t%s\t%s\t%.2f\t\t%s",
-                            codPedido,
-                            idCli,
-                            fecPedidoStr,
-                            horPedidoStr,
-                            totalPedido,
-                            pendienteStr));
-                }
-                //Confirmamos los cambios como una única transacción en la BD
-                conexion.commit();
-                conexion.setAutoCommit(true);
-            } else{
-                System.out.println("No se pudo establecer conexion con la base de datos");
-            }
-        } catch(SQLException e){
-            System.out.println("Error para visualizar los pedidos: " + e.toString());
-        }
-    }
-    
-    //Setters y Getters
-    public int getIdCliente() {
-        return idCliente;
-    }
-
-    public void setIdCliente(int idCliente) {
-        this.idCliente = idCliente;
-    }
-
-    public int getCodigoPedido() {
-        return codigoPedido;
-    }
-
-    public void setCodigoPedido(int codigoPedido) {
-        this.codigoPedido = codigoPedido;
-    }
-
-    public boolean isSesion() {
-        return sesion;
-    }
-
-    public void setSesion(boolean sesion) {
-        this.sesion = sesion;
-    }    
 }

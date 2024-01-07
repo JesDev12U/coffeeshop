@@ -17,7 +17,7 @@ import db.conexiondb.MySQLConnection;
 //Clase para el carrito
 import compras.Carrito;
 //Clase para los pedidos
-import compras.Pedidos;
+import compras.pedidos.PedidosClientes;
 
 public class Clientes extends Users {
     
@@ -74,7 +74,7 @@ public class Clientes extends Users {
     
     @Override
     public void menuPedidos(){
-        Pedidos pedidos = new Pedidos();
+        PedidosClientes pedidos = new PedidosClientes();
         pedidos.setIdCliente(id);
         System.out.println("===== MENU DE PEDIDOS =====");
         System.out.print("\n1. Realizar pedido");
@@ -106,13 +106,13 @@ public class Clientes extends Users {
             case 4 -> {
                 System.out.print("\n\nTeclee el codigo del pedido: ");
                 pedidos.setCodigoPedido(scanner.nextInt());
-                pedidos.verDetallesPedido(false); //Para los clientes, true para los empleados
+                pedidos.verDetallesPedido();
             }
             
             case 5 -> {
                 System.out.println("\n\nTeclee el codigo del pedido: ");
                 pedidos.setCodigoPedido(scanner.nextInt());
-                if(pedidos.exist(false)) pedidos.cancelarPedido(); //false para clientes, true para empleados
+                if(pedidos.exist()) pedidos.cancelarPedido();
                 else System.out.println("Codigo invalido...");
             }
             

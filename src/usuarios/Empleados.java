@@ -17,7 +17,7 @@ import db.conexiondb.MySQLConnection;
 //Clases para el inventario
 import inventario.*;
 //Clase para los pedidos
-import compras.Pedidos;
+import compras.pedidos.PedidosEmpleados;
 
 public class Empleados extends Users{
     
@@ -73,7 +73,7 @@ public class Empleados extends Users{
     
     @Override
     public void menuPedidos(){
-        Pedidos pedidos = new Pedidos();
+        PedidosEmpleados pedidos = new PedidosEmpleados();
         System.out.println("===== MENU DE PEDIDOS =====");
         System.out.print("\n1. Ver pedidos");
         System.out.print("\n2. Ver detalles de un pedido");
@@ -91,11 +91,15 @@ public class Empleados extends Users{
             case 2 -> {
                 System.out.print("\n\nTeclee el codigo del pedido: ");
                 pedidos.setCodigoPedido(scanner.nextInt());
-                pedidos.verDetallesPedido(true); //true para empleados
+                pedidos.verDetallesPedido();
             }
             
             case 3 -> {
-                
+                System.out.println("\n\nTeclee el codigo del pedido: ");
+                pedidos.setCodigoPedido(scanner.nextInt());
+                pedidos.setIdEmpleado(id);
+                if(pedidos.isPendiente()) pedidos.aceptarPedido();
+                else System.out.println("El pedido ya fue tomado por otro empleado");
             }
             
             case 4 -> {
