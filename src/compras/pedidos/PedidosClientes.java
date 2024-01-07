@@ -85,7 +85,8 @@ public class PedidosClientes extends Pedidos{
         }
     }
     
-     public void revisarEstadoPedidos(){
+    @Override
+    public void revisarEstadoPedidos(){
         try{
             if(MySQLConnection.conectarBD()){
                 Connection conexion = MySQLConnection.getConexion();
@@ -114,7 +115,7 @@ public class PedidosClientes extends Pedidos{
                         nomCompletoEmp = nomCompletoEmp.substring(0, maxLength);
                     }
                     
-                    System.out.println(String.format("%d\t%d\t%-45s\t-20s", 
+                    System.out.println(String.format("%d\t%d\t%-45s\t%-10s", 
                             codPedido,
                             idEmp,
                             nomCompletoEmp,

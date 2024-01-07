@@ -108,6 +108,8 @@ public abstract class Pedidos {
         return false; //Para evitar errores
     }
     
+    public abstract void revisarEstadoPedidos();
+    
     //Setters y Getters
     public int getIdCliente() {
         return idCliente;

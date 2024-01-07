@@ -78,7 +78,7 @@ public class PedidosEmpleados extends Pedidos{
                 Connection conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
-                String query = "SELECT * FROM pedidos WHERE CodigoPedido = " + codigoPedido + "AND Pendiente = true";
+                String query = "SELECT * FROM pedidos WHERE CodigoPedido = " + codigoPedido + " AND Pendiente = true";
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
                 //Confirmamos los cambios como una única transacción en la BD
@@ -101,7 +101,7 @@ public class PedidosEmpleados extends Pedidos{
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 //Primero cambiamos a Pendiente = false
-                String query1 = "UPDATE pedidos SET Pendiente = true WHERE CodigoPedido = " + codigoPedido;
+                String query1 = "UPDATE pedidos SET Pendiente = false WHERE CodigoPedido = " + codigoPedido;
                 Statement st1 = conexion.createStatement();
                 st1.executeUpdate(query1);
                 
@@ -121,6 +121,89 @@ public class PedidosEmpleados extends Pedidos{
             }
         } catch(SQLException e){
             System.out.println("No se pudo aceptar el pedido: " + e.toString());
+        }
+    }
+    
+    //Este método verifica si el pedido ha sido cancelado
+    //Esto es útil para poder proceder con el cambio de estado del pedido
+    public boolean isCancelado(){
+        boolean cancelado = true;
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT Cancelado FROM pedidos WHERE CodigoPedido = " + codigoPedido;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                while(rs.next()){
+                    cancelado = rs.getBoolean(1);
+                    //Tenemos la certeza de que solo habra un registro
+                }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("No se pudo establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("Error para comprobar si el pedido fue cancelado: " + e.toString());
+        }
+        return cancelado;
+    }
+    
+    public void modificarEstado(String estado){
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "UPDATE estadopedidos SET Estado = ? WHERE CodigoPedido = ?";
+                PreparedStatement st = conexion.prepareStatement(query);
+                st.setString(1, estado);
+                st.setInt(2, codigoPedido);
+                st.executeUpdate();
+                System.out.println("Se ha modificado el estado del pedido con exito");
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("No se pudo establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo modificar el estado del pedido: " + e.toString());
+        }
+    }
+    
+    @Override
+    public void revisarEstadoPedidos(){
+        try{
+            if(MySQLConnection.conectarBD()){
+                Connection conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT CodigoPedido, Estado FROM estadopedidos WHERE IdEmpleado = " + idEmpleado;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                System.out.println("--------- ESTADO DE LOS PEDIDOS ---------");
+                System.out.println("Codigo\tEstado");
+                while(rs.next()){
+                    int codPedido = rs.getInt(1);
+                    String estadoPedido = rs.getString(2);
+                    
+                    //Imprimimos los datos
+                    System.out.println(String.format("%d\t%s",
+                            codPedido,
+                            estadoPedido));
+                }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("No se pudo establecer la conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo revisar el estado de los pedidos: " + e.toString());
         }
     }
 }

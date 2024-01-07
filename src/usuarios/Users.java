@@ -50,6 +50,7 @@ public abstract class Users {
         System.out.print("\n3. Apellido Materno");
         System.out.print("\n4. Correo");
         System.out.print("\n5. Password");
+        System.out.println("\n6. Salir");
         System.out.print("\n\nTeclee una opcion: ");
         int opcionMod = scanner.nextInt();
         switch(opcionMod){
@@ -96,7 +97,11 @@ public abstract class Users {
                 password = scanner.nextLine();
                 modificarUser(opcionMod);
             }
-                    
+            
+            case 6 -> {
+                System.out.println("Operacion cancelada");
+            }
+            
             default -> {
                 System.out.println("Opcion invalida...");
             }

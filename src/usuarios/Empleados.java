@@ -97,17 +97,28 @@ public class Empleados extends Users{
             case 3 -> {
                 System.out.println("\n\nTeclee el codigo del pedido: ");
                 pedidos.setCodigoPedido(scanner.nextInt());
+                consultarID();
                 pedidos.setIdEmpleado(id);
                 if(pedidos.isPendiente()) pedidos.aceptarPedido();
-                else System.out.println("El pedido ya fue tomado por otro empleado");
+                else System.out.println("Codigo invalido...");
             }
             
             case 4 -> {
-                
+                consultarID();
+                pedidos.setIdEmpleado(id);
+                pedidos.revisarEstadoPedidos();
             }
             
             case 5 -> {
-                
+                System.out.println("\n\nTeclee el codigo del pedido: ");
+                pedidos.setCodigoPedido(scanner.nextInt());
+                if(pedidos.isCancelado()){
+                    System.out.println("El pedido fue cancelado por el cliente, "
+                            + "por lo que no se puede modificar su estado");
+                } else{
+                    System.out.println("\n\nTeclee el nuevo estado del pedido: ");
+                    pedidos.modificarEstado(scanner.nextLine());
+                }
             }
             
             case 6 -> {
