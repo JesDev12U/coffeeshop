@@ -113,10 +113,10 @@ public class Empleados extends Users{
                 System.out.println("\n\nTeclee el codigo del pedido: ");
                 pedidos.setCodigoPedido(scanner.nextInt());
                 if(pedidos.isCancelado()){
-                    System.out.println("El pedido fue cancelado por el cliente, "
-                            + "por lo que no se puede modificar su estado");
+                    System.out.println("Codigo invalido...");
                 } else{
                     System.out.println("\n\nTeclee el nuevo estado del pedido: ");
+                    scanner.nextLine();
                     pedidos.modificarEstado(scanner.nextLine());
                 }
             }

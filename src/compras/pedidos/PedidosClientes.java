@@ -102,7 +102,7 @@ public class PedidosClientes extends Pedidos{
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
                 System.out.println("--------- ESTADO DE LOS PEDIDOS ---------");
-                System.out.println("Codigo\tIDEmp\tNombre Empleado\t\t\t\tEstado");
+                System.out.println("Codigo\tIDEmp\tNombre Empleado\t\t\t\t\tEstado");
                 while(rs.next()){
                     int codPedido = rs.getInt(1);
                     int idEmp = rs.getInt(2);
@@ -115,7 +115,7 @@ public class PedidosClientes extends Pedidos{
                         nomCompletoEmp = nomCompletoEmp.substring(0, maxLength);
                     }
                     
-                    System.out.println(String.format("%d\t%d\t%-45s\t%-10s", 
+                    System.out.println(String.format("%d\t%d\t%-45s%s", 
                             codPedido,
                             idEmp,
                             nomCompletoEmp,
