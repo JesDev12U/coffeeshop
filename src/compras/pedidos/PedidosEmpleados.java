@@ -62,7 +62,9 @@ public class PedidosEmpleados extends Pedidos{
                 codigoPedido = scanner.nextInt();
                 if(isCancelado()){
                     System.out.println("Codigo invalido...");
-                } else{
+                } else if(isAceptado()) System.out.println("Codigo invalido...");
+                else if(isPendiente()) System.out.println("Codigo invalido...");
+                else{
                     System.out.println("\n\nTeclee el nuevo estado del pedido: ");
                     scanner.nextLine();
                     modificarEstado(scanner.nextLine());
@@ -80,9 +82,10 @@ public class PedidosEmpleados extends Pedidos{
     }
     
     public void verPedidos(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = """
@@ -123,13 +126,23 @@ public class PedidosEmpleados extends Pedidos{
             }
         } catch(SQLException e){
             System.out.println("Error para visualizar los pedidos: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     public boolean isPendiente(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT * FROM pedidos WHERE CodigoPedido = " + codigoPedido + " AND Pendiente = true";
@@ -144,14 +157,24 @@ public class PedidosEmpleados extends Pedidos{
             }
         } catch(SQLException e){
             System.out.println("No se pudo verificar si el pedido es pendiente: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return false; //Marcamos que el pedido no esta pendiente, para evitar errores
     }
     
     public void aceptarPedido(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 //Primero cambiamos a Pendiente = false
@@ -175,6 +198,15 @@ public class PedidosEmpleados extends Pedidos{
             }
         } catch(SQLException e){
             System.out.println("No se pudo aceptar el pedido: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
@@ -182,9 +214,10 @@ public class PedidosEmpleados extends Pedidos{
     //Esto es útil para poder proceder con el cambio de estado del pedido
     public boolean isCancelado(){
         boolean cancelado = true;
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT Cancelado FROM pedidos WHERE CodigoPedido = " + codigoPedido;
@@ -202,14 +235,55 @@ public class PedidosEmpleados extends Pedidos{
             }
         } catch(SQLException e){
             System.out.println("Error para comprobar si el pedido fue cancelado: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return cancelado;
     }
     
-    public void modificarEstado(String estado){
+    //Verifica si el pedido ya habia sido aceptado
+    private boolean isAceptado() {
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
+                conexion.setAutoCommit(false);
+                String query = "SELECT * FROM estadopedidos WHERE CodigoPedido = " + codigoPedido + " AND IdEmpleado <> " + idEmpleado;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                conexion.commit();
+                conexion.setAutoCommit(true);
+                return rs.next(); //Si hay un registro, entonces el pedido ya habia sido aceptado
+            } else{
+                System.out.println("No se pudo establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo verificar si el pedido ya habia sido aceptado: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try{
+                    conexion.setAutoCommit(true);
+                    conexion.close();
+                } catch(SQLException e){
+                    System.out.println("No se pudo cerrar la conexion: " + e.toString());
+                }
+            }
+        }
+        return true; //Para evitar errores
+    }
+    
+    public void modificarEstado(String estado){
+        Connection conexion = null;
+        try{
+            if(MySQLConnection.conectarBD()){
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "UPDATE estadopedidos SET Estado = ? WHERE CodigoPedido = ?";
@@ -226,14 +300,24 @@ public class PedidosEmpleados extends Pedidos{
             }
         } catch(SQLException e){
             System.out.println("No se pudo modificar el estado del pedido: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     public void revisarEstadoPedidos(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT CodigoPedido, Estado FROM estadopedidos WHERE IdEmpleado = " + idEmpleado;
@@ -258,6 +342,15 @@ public class PedidosEmpleados extends Pedidos{
             }
         } catch(SQLException e){
             System.out.println("No se pudo revisar el estado de los pedidos: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
 }

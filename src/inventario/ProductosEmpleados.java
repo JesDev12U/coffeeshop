@@ -25,9 +25,10 @@ public class ProductosEmpleados extends Compras {
 
     //Se visualizaran los productos sin importar su estado
     public void verProductos() {
+        Connection conexion = null;
         try {
             if (MySQLConnection.conectarBD()) {
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT * FROM productos";
@@ -63,6 +64,15 @@ public class ProductosEmpleados extends Compras {
             }
         } catch (SQLException e) {
             System.out.println("Error para mostrar los productos: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
@@ -180,9 +190,10 @@ public class ProductosEmpleados extends Compras {
     @Override
     protected void addProd(){
         //Se añade un producto a la base de datos
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "INSERT INTO productos VALUES (DEFAULT, ?, ?, ?, ?)";
@@ -201,14 +212,24 @@ public class ProductosEmpleados extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error para agregar el producto: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     protected void modProd(int opcionMod){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 switch(opcionMod){
@@ -247,6 +268,15 @@ public class ProductosEmpleados extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error para modificar los datos del producto: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
@@ -254,9 +284,10 @@ public class ProductosEmpleados extends Compras {
     //No se ocupa el DELETE
     @Override
     protected void delProd(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "UPDATE productos SET Estado = false WHERE IdProducto = " + idProducto;
@@ -271,6 +302,15 @@ public class ProductosEmpleados extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error para dar de baja el producto: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
@@ -280,9 +320,10 @@ public class ProductosEmpleados extends Compras {
     //en caso contrario, buscara por ID
     @Override
     public boolean verificarExistenciaProd(boolean bln){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = bln ? "SELECT * FROM productos WHERE NombreP = '" + nombre + "'" : 
@@ -298,16 +339,26 @@ public class ProductosEmpleados extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error para verificar la existencia del producto: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return true; //Para que no proceda el registro si es que hay error
     }
     
     //Este metodo verificara si el producto esta dado de baja
     private boolean verificarBajaProd(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
                 boolean estado = true;
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT Estado FROM productos WHERE IdProducto = " + idProducto;
@@ -324,15 +375,25 @@ public class ProductosEmpleados extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error al verificar la baja del producto: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return true; //Para evitar errores
     }
     
     //Se mostraran los productos con Estado = false
     private void visualizarBajas(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+               conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT IdProducto, NombreP, Descripcion, Precio FROM productos WHERE Estado = false";
@@ -363,14 +424,24 @@ public class ProductosEmpleados extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error al mostrar los productos dados de baja: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     //Cambia el estado de los productos a true
     private void darAltaProd(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "UPDATE productos SET Estado = true WHERE IdProducto = " + idProducto;
@@ -385,6 +456,15 @@ public class ProductosEmpleados extends Compras {
             }
         } catch(SQLException e){
             System.out.println("No se pudo dar de alta el producto: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
 }

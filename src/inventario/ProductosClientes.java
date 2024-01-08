@@ -23,9 +23,10 @@ public class ProductosClientes {
 
     //Se visualizarán únicamente los productos activos Estado = true
     public void verProductos(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT IdProducto, NombreP, Descripcion, Precio FROM productos WHERE Estado = true";
@@ -56,6 +57,15 @@ public class ProductosClientes {
             }
         } catch(SQLException e){
             System.out.println("Error al mostrar los productos activos: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
 }

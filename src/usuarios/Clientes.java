@@ -52,6 +52,7 @@ public class Clientes extends Users {
             case 3 -> {
                 PedidosClientes pedCli = new PedidosClientes();
                 pedCli.setSesion(true); //Activamos la sesion de los pedidos
+                pedCli.setIdCliente(id);
                 while(pedCli.isSesion()){
                     pedCli.menuPedidos();
                 }
@@ -78,9 +79,10 @@ public class Clientes extends Users {
     
     @Override
     public void consultarID(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT IdCliente FROM clientes WHERE CorreoE = '" + correo + "'";
@@ -98,15 +100,25 @@ public class Clientes extends Users {
         } catch(SQLException e){
             System.out.println("Error al consultar el ID: " + e.toString());
             id = -1;
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     //Implementación de los métodos abstractos
     @Override
     public void insertarUser(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Hacemos el control de errores con las transacciones
                 //Si falla una transacción, no se realiza niguna otra
                 conexion.setAutoCommit(false);
@@ -128,14 +140,24 @@ public class Clientes extends Users {
             }
         } catch(SQLException e){
             System.out.println("Error para realizar la inserción del cliente: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     protected void modificarUser(int opcionMod){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Hacemos el control de errores con las transacciones
                 //Si falla una transacción, no se realiza niguna otra
                 conexion.setAutoCommit(false);
@@ -194,15 +216,25 @@ public class Clientes extends Users {
             }
         } catch(SQLException e){
             System.out.println("Error para realizar la actualización de datos del cliente: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally    
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     protected void darBajaUser(){
         //En este método no se realiza un DELETE, solo se cambia el estado a false
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Hacemos el control de errores con las transacciones
                 //Si falla una transacción, no se realiza niguna otra
                 conexion.setAutoCommit(false);
@@ -221,15 +253,25 @@ public class Clientes extends Users {
             }
         } catch(SQLException e){
             System.out.println("Error para dar de baja al cliente: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     public String darBienvenidaUser(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
                 String nom = "";
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Hacemos el control de errores con las transacciones
                 //Si falla una transacción, no se realiza niguna otra
                 conexion.setAutoCommit(false);
@@ -250,6 +292,15 @@ public class Clientes extends Users {
             }
         } catch(SQLException e){
             System.out.println(e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return "ERROR";
     }

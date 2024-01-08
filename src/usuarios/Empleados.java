@@ -49,6 +49,7 @@ public class Empleados extends Users{
             case 3 -> {
                 PedidosEmpleados pedEmp = new PedidosEmpleados();
                 pedEmp.setSesion(true); //Habilitamos la sesion de pedidos
+                pedEmp.setIdEmpleado(id);
                 while(pedEmp.isSesion()){
                     pedEmp.menuPedidos();
                 }
@@ -76,9 +77,10 @@ public class Empleados extends Users{
     //Metodos abstractos
     @Override
     public void consultarID(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT IdEmpleado FROM empleados WHERE CorreoE = '" + correo + "'";
@@ -97,14 +99,24 @@ public class Empleados extends Users{
         } catch(SQLException e){
             System.out.println("Error al consultar el ID: " + e.toString());
             id = -1;
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     public void insertarUser(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "INSERT INTO empleados VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
@@ -125,14 +137,24 @@ public class Empleados extends Users{
             }
         } catch(SQLException e){
             System.out.println("Error al insertar al empleado: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     protected void modificarUser(int opcionMod){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 consultarID();
@@ -190,21 +212,31 @@ public class Empleados extends Users{
             }
         } catch(SQLException e){
             System.out.println("Error al modificar los datos del empleado: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     //Este metodo solo cambia el Estado = false
     protected void darBajaUser(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 consultarID();
                 conexion.setAutoCommit(false);
                 String query = "UPDATE empleados SET Estado = false WHERE IdEmpleado = " + id;
                 Statement st = conexion.createStatement();
-                st.executeQuery(query);
+                st.executeUpdate(query);
                 System.out.println("Se ha dado de baja al empleado exitosamente");
                 //Confirmamos los cambios como una única transacción en la BD
                 conexion.commit();
@@ -214,15 +246,25 @@ public class Empleados extends Users{
             }
         } catch(SQLException e){
             System.out.println("Error al dar de baja al empleado: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     public String darBienvenidaUser(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
                 String nom = "";
-                Connection conexion = MySQLConnection.getConexion();
+               conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 consultarID();
@@ -241,6 +283,15 @@ public class Empleados extends Users{
             }
         } catch(SQLException e){
             System.out.println("Error al consultar el nombre del empleado: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return "ERROR";
     }

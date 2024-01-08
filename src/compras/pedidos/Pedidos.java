@@ -33,9 +33,10 @@ public abstract class Pedidos {
     }
     
     public void verDetallesPedido(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = """
@@ -58,7 +59,7 @@ public abstract class Pedidos {
                 ResultSet rs = st.executeQuery();
                 
                 System.out.println("--------- DETALLES DEL PEDIDO " + codigoPedido + " ---------");
-                System.out.println("Codigo\tIdProd\tNombreProd\tPrecio\t\tCantidad\tImporte\t\tDetalles");
+                System.out.println("Codigo\tIdProd\tNombreProd\t\t\t\tPrecio\t\tCantidad\tImporte\t\tDetalles");
                 
                 while(rs.next()){
                     int codPedido = rs.getInt(1);
@@ -70,7 +71,7 @@ public abstract class Pedidos {
                     String detalles = rs.getString(7);
                     
                     //Imprimir los datos con alineación
-                    System.out.println(String.format("%d\t%d\t%s\t\t%.2f\t\t%d\t\t%.2f\t\t%s",
+                    System.out.println(String.format("%d\t%d\t%-30s\t\t%.2f\t\t%d\t\t%.2f\t\t%s",
                             codPedido,
                             idProd,
                             nombreProd,
@@ -88,6 +89,15 @@ public abstract class Pedidos {
             }
         } catch(SQLException e){
             System.out.println("No se pudo consultar del detalle del pedido: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     

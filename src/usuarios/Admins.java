@@ -38,62 +38,75 @@ public class Admins extends Users{
         System.out.print("\n5. Dar alta a administrador");
         System.out.print("\n6. Ver todos los empleados");
         System.out.print("\n7. Ver todos los clientes");
-        System.out.print("\n8. Modificar datos");
-        System.out.print("\n9. Dar de baja la cuenta");
-        System.out.print("\n10. Cerrar sesion");
+        System.out.print("\n8. Ver todos los administradores");
+        System.out.print("\n9. Modificar datos");
+        System.out.print("\n10. Dar de baja la cuenta");
+        System.out.print("\n11. Cerrar sesion");
         System.out.print("\n\nTeclee una opcion: ");
         int opcion = scanner.nextInt();
         switch(opcion){
             case 1 -> {
                 System.out.print("\n\nTeclee el ID del cliente: ");
                 idCliente = scanner.nextInt();
-                if(userExists(false, idCliente)) altaBajaCliente(false);
-                else System.out.println("El cliente no existe en la base de datos");
+                if(!userExists("CLIENTE", idCliente)) System.out.println("El cliente no existe en la base de datos");
+                else if(!isClienteActivo()) System.out.println("El cliente ya estaba dado de baja");
+                else altaBajaCliente(false);
             }
             
             case 2 -> {
                 System.out.print("\n\nTeclee el ID del empleado: ");
                 idEmpleado = scanner.nextInt();
-                if(userExists(false, idEmpleado)) altaBajaEmpleado(false);
-                else System.out.println("El empleado no existe en la base de datos");
+                if(!userExists("EMPLEADO", idEmpleado)) System.out.println("El empleado no existe en la base de datos");
+                else if(!isEmpleadoActivo()) System.out.println("El empleado ya estaba dado de baja");
+                else altaBajaEmpleado(false);
             }
             
             case 3 -> {
                 System.out.print("\n\nTeclee el ID del cliente: ");
                 idCliente = scanner.nextInt();
-                if(userExists(false, idCliente)) altaBajaCliente(true);
-                else System.out.println("El cliente no existe en la base de datos");
+                if(!userExists("CLIENTE", idCliente)) System.out.println("El cliente no existe en la base de datos");
+                else if(isClienteActivo()) System.out.println("El cliente ya estaba dado de alta");
+                else altaBajaCliente(true);
             }
             
             case 4 -> {
                 System.out.print("\n\nTeclee el ID del empleado: ");
                 idEmpleado = scanner.nextInt();
-                if(userExists(false, idEmpleado)) altaBajaEmpleado(true);
-                else System.out.println("El empleado no existe en la base de datos");
+                if(!userExists("EMPLEADO", idEmpleado)) System.out.println("El empleado no existe en la base de datos");
+                else if(isEmpleadoActivo()) System.out.println("El empleado ya estaba dado de alta");
+                else altaBajaEmpleado(true);
             }
             
             case 5 -> {
-                
+                System.out.print("\n\nTeclee el ID del administrador: ");
+                idAdmin = scanner.nextInt();
+                if(!userExists("ADMINISTRADOR", idAdmin)) System.out.println("El administrador no existe en la base de datos");
+                else if(isAdminActivo()) System.out.println("El administrador ya estaba dado de alta");
+                else altaAdmin();
             }
             
             case 6 -> {
-                verUser(true);
+                verUser("EMPLEADO");
             }
             
             case 7 -> {
-                verUser(false);
+                verUser("CLIENTE");
             }
             
             case 8 -> {
+                verUser("ADMINISTRADOR");
+            }
+            
+            case 9 -> {
                 tipoUser = "ADMINISTRADOR";
                 modificarDatosMenu();
             }
             
-            case 9 -> {
+            case 10 -> {
                 darBajaMenu();
             }
             
-            case 10 -> {
+            case 11 -> {
                 sesion = false;
             }
             
@@ -103,14 +116,128 @@ public class Admins extends Users{
         }
     }
     
-    private boolean userExists(boolean bln, int idUser){ //false para clientes, true para empleados
+    private boolean isClienteActivo(){
+        boolean activo = false;
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT Estado FROM clientes WHERE IdCliente = " + idCliente;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                while(rs.next()){
+                    activo = rs.getBoolean(1);
+                    //Tenemos la certeza de que solo habra un registro
+                }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("No se pudo establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo comprobar si el cliente esta activo: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
+        }
+        return activo;
+    }
+    
+    private boolean isEmpleadoActivo(){
+        boolean activo = false;
+        Connection conexion = null;
+        try{
+            if(MySQLConnection.conectarBD()){
+                conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT Estado FROM empleados WHERE IdEmpleado = " + idEmpleado;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                while(rs.next()){
+                    activo = rs.getBoolean(1);
+                    //Tenemos la certeza de que solo habra un registro
+                }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("No se pudo establecer conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo comprobar si el empleado esta activo: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
+        }
+        return activo;
+    }
+    
+    private boolean isAdminActivo(){
+        boolean activo = false;
+        Connection conexion = null;
+        try{
+            if(MySQLConnection.conectarBD()){
+                conexion = MySQLConnection.getConexion();
+                //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
+                conexion.setAutoCommit(false);
+                String query = "SELECT Estado FROM admins WHERE IdAdmin = " + idAdmin;
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(query);
+                while(rs.next()){
+                    activo = rs.getBoolean(1);
+                    //Tenemos la certeza de que solo habra un registro
+                }
+                //Confirmamos los cambios como una única transacción en la BD
+                conexion.commit();
+                conexion.setAutoCommit(true);
+            } else{
+                System.out.println("Error para establecer la conexion con la base de datos");
+            }
+        } catch(SQLException e){
+            System.out.println("No se pudo comprobar si el administrador esta activo: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
+        }
+        return activo;
+    }
+    
+    private boolean userExists(String user, int idUser){ //false para clientes, true para empleados
+        Connection conexion = null;
+        try{
+            if(MySQLConnection.conectarBD()){
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT * FROM ";
-                query += bln ? "empleados WHERE IdEmpleado = " : "clientes WHERE IdCliente = ";
+                switch (user) {
+                    case "ADMINISTRADOR" -> query += "admins WHERE IdAdmin = ";
+                    case "EMPLEADO" -> query += "empleados WHERE IdEmpleado = ";
+                    case "CLIENTE" -> query += "clientes WHERE IdCliente = ";
+                    default -> System.out.println("No se detecto ningun usuario");   
+                }
                 query += idUser;
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
@@ -123,21 +250,32 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println("No se pudo verificar si el usuario existe");
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return false; //Para evitar errores
     }
     
     private void altaBajaCliente(boolean bln){ //false para baja, true para alta
         String operacion = bln ? "alta" : "baja"; //Para la impresion en pantalla
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "UPDATE clientes SET Estado = ? WHERE IdCliente = ?";
                 PreparedStatement st = conexion.prepareStatement(query);
                 st.setBoolean(1, bln);
                 st.setInt(2, idCliente);
+                st.executeUpdate();
                 System.out.println("Se ha dado de " + operacion + " al cliente correctamente");
                 //Confirmamos los cambios como una única transacción en la BD
                 conexion.commit();
@@ -147,20 +285,31 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println("Error para dar de " + operacion + " al cliente: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     private void altaBajaEmpleado(boolean bln){ //false para baja, true para alta
         String operacion = bln ? "alta" : "baja"; //Para la impresion en pantalla
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "UPDATE empleados SET Estado = ? WHERE IdEmpleado = ?";
                 PreparedStatement st = conexion.prepareStatement(query);
                 st.setBoolean(1, bln);
                 st.setInt(2, idEmpleado);
+                st.executeUpdate();
                 System.out.println("Se ha dado de " + operacion + " al empleado correctamente");
                 //Confirmamos los cambios como una única transacción en la BD
                 conexion.commit();
@@ -170,13 +319,23 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println("Error para dar de " + operacion + " al empleado: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     private void altaAdmin(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "UPDATE admins SET Estado = true WHERE IdAdmin = " + idAdmin;
@@ -191,31 +350,48 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println("Error para dar de alta al administrador: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
-    private void verUser(boolean bln){ //false para clientes, true para empleados
-        String user = bln ? "empleados" : "clientes";  
+    private void verUser(String user){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query;
-                if(bln) query = """
+                switch (user) {
+                    case "EMPLEADO" -> query = """
                                 SELECT IdEmpleado, NombreE, ApellidoPaternoE,
                                 ApellidoMaternoE, CorreoE, Estado
                                 FROM empleados
                                 """;
-                else query = """
-                             SELECT IdCliente, NombreC, ApellidoPaternoC,
-                             ApellidoMaternoC, CorreoE, Estado
-                             FROM clientes
-                             """;
+                    case "ADMINISTRADOR" -> query = """
+                                                    SELECT IdAdmin, NombreA, ApellidoPaternoA,
+                                                    ApellidoMaternoA, CorreoE, Estado 
+                                                    FROM admins
+                                                    """;
+                    case "CLIENTE" -> query = """
+                                              SELECT IdCliente, NombreC, ApellidoPaternoC,
+                                              ApellidoMaternoC, CorreoE, Estado
+                                              FROM clientes
+                                              """;
+                    default -> query = "ERROR";
+                }
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(query);
                 System.out.println(" --------- TABLA DE " + user + " ---------");
-                System.out.println("ID\tNombre\t\t\tApellidoPat\t\t\tApellidoMat\t\t\tCorreo\t\t\tEstado");
+                System.out.println("ID\tNombre\t\t\tApellidoPat\t\t\tApellidoMat\t\t\tCorreo\t\t\t\t\t\tEstado");
                 while(rs.next()){
                     int idUser = rs.getInt(1);
                     String nomUser = rs.getString(2);
@@ -227,7 +403,7 @@ public class Admins extends Users{
                     String estadoUserStr = estadoUser ? "Activo" : "Inactivo";
                     
                     //Imprimir los datos
-                    System.out.println(String.format("%d\t%s\t\t\t%s\t\t\t%s\t\t\t%s\t\t\t%s",
+                    System.out.println(String.format("%d\t%-20s\t%-20s\t\t%-20s\t\t%-30s\t\t\t%s",
                             idUser,
                             nomUser,
                             apPatUser,
@@ -243,14 +419,24 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println("No se pudo mostrar a los " + user + ": " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     public void consultarID(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT IdAdmin FROM admins WHERE CorreoE = '" + correo + "'";
@@ -268,14 +454,24 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println("No se pudo buscar el ID del admin: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     public void insertarUser(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "INSERT INTO admins VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
@@ -296,14 +492,24 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println("No se pudo registrar al admin: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     protected void modificarUser(int opcionMod){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Hacemos el control de errores con las transacciones
                 //Si falla una transacción, no se realiza niguna otra
                 conexion.setAutoCommit(false);
@@ -362,15 +568,25 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println("Error para realizar la actualización de datos del admin: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     protected void darBajaUser(){
         //En este método no se realiza un DELETE, solo se cambia el estado a false
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Hacemos el control de errores con las transacciones
                 //Si falla una transacción, no se realiza niguna otra
                 conexion.setAutoCommit(false);
@@ -389,15 +605,25 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println("Error para dar de baja al administrador: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     public String darBienvenidaUser(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
                 String nom = "";
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Hacemos el control de errores con las transacciones
                 //Si falla una transacción, no se realiza niguna otra
                 conexion.setAutoCommit(false);
@@ -418,6 +644,15 @@ public class Admins extends Users{
             }
         } catch(SQLException e){
             System.out.println(e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                    conexion.setAutoCommit(true);
+                    conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return "ERROR";
     }

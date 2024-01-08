@@ -25,9 +25,10 @@ public class Login extends Acceso{
     
     @Override
     public boolean validarExistencia(){ //Validamos correo y password
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 /*String query = (verificarCorreoE()) ? "SELECT * FROM empleados WHERE CorreoE = ? AND PasswordE = ?" : 
@@ -52,16 +53,26 @@ public class Login extends Acceso{
             }
         } catch(SQLException e){
             System.out.println("Error para validar credenciales: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return false;
     }
     
     //Este método servirá para verificar si el usuario está dado de baja o no
     public boolean consultarEstado(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
                 boolean estado = false;
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 //String query = (verificarCorreoE()) ? "SELECT Estado FROM empleados WHERE CorreoE = '" + correo + "'" : "SELECT Estado FROM clientes WHERE CorreoE = '" + correo + "'";
@@ -88,6 +99,15 @@ public class Login extends Acceso{
             }
         } catch(SQLException e){
             System.out.println("No se pudo verificar el estado");
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return false;
     }

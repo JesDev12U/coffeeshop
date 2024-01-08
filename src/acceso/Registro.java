@@ -21,9 +21,10 @@ public class Registro extends Acceso {
     @Override
     //Este método verifica la existencia del usuario, esto es para evitar duplicados
     public boolean validarExistencia(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 /*String query = (verificarCorreoE()) ? "SELECT * FROM empleados WHERE CorreoE = ?" : 
@@ -44,6 +45,15 @@ public class Registro extends Acceso {
             }
         } catch(SQLException e){
             System.out.println("Error para validar duplicado: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return true; //Para que no continue el registro
     }

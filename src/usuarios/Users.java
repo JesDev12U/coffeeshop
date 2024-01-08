@@ -73,17 +73,21 @@ public abstract class Users {
             case 4 -> {
                 System.out.print("\n\nTeclee el nuevo correo: ");
                 scanner.nextLine();
-                correo = scanner.nextLine();
-                Registro registro = new Registro(correo);
+                String nuevoCorreo = scanner.nextLine();
+                Registro registro = new Registro(nuevoCorreo);
                 if(registro.validarExistencia())
                     System.out.println("\nEse correo ya esta en uso");
                 else if(!registro.verificarCorreoE() && tipoUser.equals("EMPLEADO")) //Si es empleado y su correo no es de empleado
                     System.out.println("\nNo se puede ingresar ese correo debido a que eres empleado");
-                else if(registro.verificarCorreoE() && !tipoUser.equals("EMPLEADO")) //Si es cliente y su correo es de empleado
+                else if(registro.verificarCorreoE() && !tipoUser.equals("EMPLEADO")) //Si es otro usuario menos empleado y su correo es de empleado
                     System.out.println("\nCorreo invalido...");
                 else if(registro.verificarCorreoA() && !tipoUser.equals("ADMINISTRADOR"))
                     System.out.println("\nCorreo invalido...");
-                else modificarUser(opcionMod);
+                else if(!registro.verificarCorreoA() && tipoUser.equals("ADMINISTRADOR")) System.out.println("\nNo se puede ingresar ese correo debido a que eres administrador");
+                else{
+                    correo = nuevoCorreo;
+                    modificarUser(opcionMod);
+                }
             }
                     
             case 5 -> {
@@ -105,7 +109,7 @@ public abstract class Users {
     
     protected void darBajaMenu(){
         System.out.println("--------- DAR DE BAJA LA CUENTA ---------");
-        System.out.print("\nRealmente quieres darte de baja en el sistema? (s/n)");
+        System.out.print("\nRealmente quieres darte de baja en el sistema? (s/n): ");
         String confirmacionStr = scanner.next();
         confirmacionStr = confirmacionStr.toUpperCase();
         char confirmacion = confirmacionStr.charAt(0);

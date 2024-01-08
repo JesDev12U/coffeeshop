@@ -124,9 +124,10 @@ public class Carrito extends Compras {
     
     @Override
     protected void addProd(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "INSERT INTO carrito VALUES (?, ?, ?, ?, ?)";
@@ -147,14 +148,24 @@ public class Carrito extends Compras {
             }
         } catch(SQLException e){
             System.out.println("No se pudo agregar el producto al carrito: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     protected void modProd(int opcionMod){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 switch(opcionMod){
@@ -189,14 +200,24 @@ public class Carrito extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error al actualizar el producto del carrito: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     protected void delProd() { //Aqui si se implementa el DELETE
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "DELETE FROM carrito WHERE IdCliente = ? AND IdProducto = ?";
@@ -211,14 +232,24 @@ public class Carrito extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error al eliminar el producto del carrito: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     @Override
     protected boolean verificarExistenciaProd(boolean bln){ //Se buscara siempre por el ID del producto en el carrito
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT * FROM carrito WHERE IdCliente = ? AND IdProducto = ?";
@@ -235,6 +266,15 @@ public class Carrito extends Compras {
             }
         } catch(SQLException e){
             System.out.println("No se pudo verificar la existencia del producto en el carrito: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return true; //Para evitar errores
     }
@@ -246,9 +286,10 @@ public class Carrito extends Compras {
     
     public float calcularTotalCarrito(){
         float totalPagar = 0;
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 //Calculamos el total a pagar
@@ -271,14 +312,24 @@ public class Carrito extends Compras {
             }
         } catch(SQLException e){
             System.out.println("No se pudo consultar el total del carrito: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return totalPagar;
     }
     
     private void buscarPrecioProd(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT Precio FROM productos WHERE IdProducto = " + idProducto;
@@ -294,13 +345,23 @@ public class Carrito extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error al consultar el precio del producto: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     private void verCarrito(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = """
@@ -339,14 +400,24 @@ public class Carrito extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error para mostrar el carrito: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
     }
     
     //Se hace la verificacion si el carrito esta vacio o no
     public boolean isEmpty(){
+        Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
-                Connection conexion = MySQLConnection.getConexion();
+                conexion = MySQLConnection.getConexion();
                 //Si se hacen varias transacciones y en una hay error, ninguna se ejecuta
                 conexion.setAutoCommit(false);
                 String query = "SELECT * FROM carrito WHERE IdCliente = " + idCliente;
@@ -361,6 +432,15 @@ public class Carrito extends Compras {
             }
         } catch(SQLException e){
             System.out.println("Error para consultar el carrito: " + e.toString());
+        } finally {
+            if(conexion != null){
+                try {
+                conexion.setAutoCommit(true);
+                conexion.close(); // Cerrar la conexión en el bloque finally
+                } catch (SQLException closingException) {
+                    System.out.println("Error al cerrar la conexión: " + closingException.toString());
+                }
+            }
         }
         return true; //Para evitar errores
     }
