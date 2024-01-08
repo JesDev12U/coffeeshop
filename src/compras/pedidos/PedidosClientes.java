@@ -30,6 +30,7 @@ public class PedidosClientes extends Pedidos{
         tipoUser = false; //Establecemos que es cliente
     }
     
+    @Override
     public void menuPedidos(){
         System.out.println("===== MENU DE PEDIDOS =====");
         System.out.print("\n1. Realizar pedido");
@@ -55,7 +56,7 @@ public class PedidosClientes extends Pedidos{
             }
             
             case 3 -> {
-                verPedidosRealizados();
+                verPedidos();
             }
             
             case 4 -> {
@@ -240,8 +241,9 @@ public class PedidosClientes extends Pedidos{
             }
         }
     }
-     
-    private void verPedidosRealizados(){
+    
+    @Override
+    protected void verPedidos(){
         //Solo es una consulta a la tabla pedidos
         Connection conexion = null;
         try{

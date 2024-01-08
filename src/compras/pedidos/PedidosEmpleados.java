@@ -25,6 +25,7 @@ public class PedidosEmpleados extends Pedidos{
         tipoUser = true; //Establecemos que es un empleado
     }
     
+    @Override
     public void menuPedidos(){
         System.out.println("===== MENU DE PEDIDOS =====");
         System.out.print("\n1. Ver pedidos");
@@ -81,7 +82,8 @@ public class PedidosEmpleados extends Pedidos{
         }
     }
     
-    private void verPedidos(){
+    @Override
+    protected void verPedidos(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){

@@ -15,14 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-//Para la verificacion de correos
-//Se importa a registro ya que esta clase solo necesita pasarle el correo del usuario
-//Solo se importa para verificar los correos
 
-/**
- *
- * @author Admin
- */
 public class Admins extends Users{
     private int idCliente;
     private int idEmpleado;

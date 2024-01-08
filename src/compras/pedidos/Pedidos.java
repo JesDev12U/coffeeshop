@@ -102,6 +102,8 @@ public abstract class Pedidos {
     }
     
     protected abstract void revisarEstadoPedidos();
+    public abstract void menuPedidos();
+    protected abstract void verPedidos();
     
     //Setters y Getters
     public int getIdCliente() {
