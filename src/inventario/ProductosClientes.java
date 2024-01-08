@@ -15,10 +15,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- *
- * @author Admin
- */
 public class ProductosClientes {
 
     //Se visualizarán únicamente los productos activos Estado = true

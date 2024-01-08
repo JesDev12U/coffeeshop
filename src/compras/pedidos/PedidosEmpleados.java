@@ -81,7 +81,7 @@ public class PedidosEmpleados extends Pedidos{
         }
     }
     
-    public void verPedidos(){
+    private void verPedidos(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
@@ -138,7 +138,7 @@ public class PedidosEmpleados extends Pedidos{
         }
     }
     
-    public boolean isPendiente(){
+    private boolean isPendiente(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
@@ -170,7 +170,7 @@ public class PedidosEmpleados extends Pedidos{
         return false; //Marcamos que el pedido no esta pendiente, para evitar errores
     }
     
-    public void aceptarPedido(){
+    private void aceptarPedido(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
@@ -212,7 +212,7 @@ public class PedidosEmpleados extends Pedidos{
     
     //Este método verifica si el pedido ha sido cancelado
     //Esto es útil para poder proceder con el cambio de estado del pedido
-    public boolean isCancelado(){
+    private boolean isCancelado(){
         boolean cancelado = true;
         Connection conexion = null;
         try{
@@ -279,7 +279,7 @@ public class PedidosEmpleados extends Pedidos{
         return true; //Para evitar errores
     }
     
-    public void modificarEstado(String estado){
+    private void modificarEstado(String estado){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
@@ -313,7 +313,7 @@ public class PedidosEmpleados extends Pedidos{
     }
     
     @Override
-    public void revisarEstadoPedidos(){
+    protected void revisarEstadoPedidos(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){

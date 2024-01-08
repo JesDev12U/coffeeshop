@@ -155,6 +155,7 @@ public class Principal {
                     
                     case 3 -> {
                         seguir = false;
+                        MySQLConnection.cerrarConexion();
                     }
                     
                     default -> {

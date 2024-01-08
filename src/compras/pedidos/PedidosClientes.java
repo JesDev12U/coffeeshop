@@ -81,7 +81,7 @@ public class PedidosClientes extends Pedidos{
         }
     }
     
-    public void registrarPedido() {
+    private void registrarPedido() {
         Connection conexion = null;
         try {
             if (MySQLConnection.conectarBD()) {
@@ -147,7 +147,7 @@ public class PedidosClientes extends Pedidos{
     }
     
     //Verifica si el pedido existe en la base de datos
-    public boolean exist(){
+    private boolean exist(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
@@ -181,7 +181,7 @@ public class PedidosClientes extends Pedidos{
     }
     
     @Override
-    public void revisarEstadoPedidos(){
+    protected void revisarEstadoPedidos(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
@@ -241,7 +241,7 @@ public class PedidosClientes extends Pedidos{
         }
     }
      
-    public void verPedidosRealizados(){
+    private void verPedidosRealizados(){
         //Solo es una consulta a la tabla pedidos
         Connection conexion = null;
         try{
@@ -304,7 +304,7 @@ public class PedidosClientes extends Pedidos{
         }
     }
     
-    public void cancelarPedido(){
+    private void cancelarPedido(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){

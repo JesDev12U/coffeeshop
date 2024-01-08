@@ -32,7 +32,7 @@ public abstract class Pedidos {
         scanner = new Scanner(System.in);
     }
     
-    public void verDetallesPedido(){
+    protected void verDetallesPedido(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
@@ -101,7 +101,7 @@ public abstract class Pedidos {
         }
     }
     
-    public abstract void revisarEstadoPedidos();
+    protected abstract void revisarEstadoPedidos();
     
     //Setters y Getters
     public int getIdCliente() {
