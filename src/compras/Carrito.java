@@ -51,7 +51,8 @@ public class Carrito extends Compras {
                     System.out.println("ID invalido...");
                 } else if(verificarExistenciaProd(false)){ //No importa el valor booleano
                     System.out.println("El producto ya habia sido agregado a tu carrito...");
-                } else{
+                } else if(!producto.verificarBajaProd()) System.out.println("ID invalido..."); 
+                else{
                     System.out.print("\nTeclee los detalles: ");
                     scanner.nextLine();
                     detalles = scanner.nextLine();

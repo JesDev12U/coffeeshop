@@ -353,7 +353,7 @@ public class ProductosEmpleados extends Compras {
     }
     
     //Este metodo verificara si el producto esta dado de baja
-    private boolean verificarBajaProd(){
+    public boolean verificarBajaProd(){
         Connection conexion = null;
         try{
             if(MySQLConnection.conectarBD()){
